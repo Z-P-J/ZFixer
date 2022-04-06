@@ -33,13 +33,8 @@ public class ZFixer {
             protected Class<?> findClass(String className)
                     throws ClassNotFoundException {
                 Class<?> clazz = dexFile.loadClass(className, this);
-                if (clazz == null
-                        && className.startsWith("com.alipay.euler.andfix")) {
-                    return Class.forName(className);// annotation’s class
-                    // not found
-                }
                 if (clazz == null) {
-                    throw new ClassNotFoundException(className);
+                    clazz = context.getClassLoader().loadClass(className);
                 }
                 return clazz;
             }

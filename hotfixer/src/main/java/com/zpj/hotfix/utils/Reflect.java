@@ -39,4 +39,16 @@ public class Reflect {
         return (T) method.invoke(obj, args);
     }
 
+    public static <T> T invokeStatic(Class<?> clazz, String name) throws Exception {
+        Method method = clazz.getDeclaredMethod(name);
+        method.setAccessible(true);
+        return (T) method.invoke(null);
+    }
+
+    public static <T> T invokeStatic(Class<?> clazz, String name, Class<?>[] parameterTypes, Object[] args) throws Exception {
+        Method method = clazz.getDeclaredMethod(name, parameterTypes);
+        method.setAccessible(true);
+        return (T) method.invoke(null, args);
+    }
+
 }

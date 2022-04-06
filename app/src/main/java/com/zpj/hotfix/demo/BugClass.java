@@ -38,7 +38,9 @@ public class BugClass {
     }
 
     public int add(int a, int b) {
-        return a - b;
+        // 去掉日志该方法会被内联优化
+        Log.d(TAG, "testAdd");
+        return (a - b);
     }
 
     private void testPrivateMethod() {

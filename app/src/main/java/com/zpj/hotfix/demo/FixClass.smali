@@ -38,7 +38,7 @@
     .end annotation
 
     .prologue
-    .line 73
+    .line 85
     iget-object v0, p0, Lcom/zpj/hotfix/demo/FixClass;->bugClass:Lcom/zpj/hotfix/demo/BugClass;
 
     const-string v1, "context"
@@ -61,7 +61,7 @@
     .end annotation
 
     .prologue
-    .line 77
+    .line 89
     const-class v0, Lcom/zpj/hotfix/demo/BugClass;
 
     const-string v1, "TAG"
@@ -84,7 +84,7 @@
     .end annotation
 
     .prologue
-    .line 69
+    .line 81
     iget-object v0, p0, Lcom/zpj/hotfix/demo/FixClass;->bugClass:Lcom/zpj/hotfix/demo/BugClass;
 
     const-string v1, "test"
@@ -112,7 +112,7 @@
     .end annotation
 
     .prologue
-    .line 55
+    .line 67
     invoke-static {}, Lcom/zpj/hotfix/demo/FixClass;->getTag()Ljava/lang/String;
 
     move-result-object v0
@@ -121,7 +121,7 @@
 
     invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 56
+    .line 68
     return-void
 .end method
 
@@ -140,7 +140,7 @@
     .end annotation
 
     .prologue
-    .line 60
+    .line 72
     invoke-static {}, Lcom/zpj/hotfix/demo/FixClass;->getTag()Ljava/lang/String;
 
     move-result-object v0
@@ -149,7 +149,7 @@
 
     invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 61
+    .line 73
     add-int/lit16 v0, p0, 0x3e8
 
     return v0
@@ -167,7 +167,7 @@
     .end annotation
 
     .prologue
-    .line 50
+    .line 62
     add-int v0, p1, p2
 
     return v0
@@ -181,13 +181,13 @@
     .end annotation
 
     .prologue
-    .line 41
+    .line 53
     const/4 v2, 0x1
 
     :try_start_1
     div-int/lit8 v0, v2, 0x0
 
-    .line 42
+    .line 54
     .local v0, "a":I
     invoke-static {}, Lcom/zpj/hotfix/demo/FixClass;->getTag()Ljava/lang/String;
 
@@ -215,16 +215,16 @@
     :try_end_1d
     .catch Ljava/lang/Exception; {:try_start_1 .. :try_end_1d} :catch_1e
 
-    .line 46
+    .line 58
     .end local v0    # "a":I
     :goto_1d
     return-void
 
-    .line 43
+    .line 55
     :catch_1e
     move-exception v1
 
-    .line 44
+    .line 56
     .local v1, "e":Ljava/lang/Exception;
     invoke-virtual {v1}, Ljava/lang/Exception;->printStackTrace()V
 
@@ -232,17 +232,85 @@
 .end method
 
 .method public getText()Ljava/lang/String;
-    .registers 2
+    .registers 4
     .annotation runtime Lcom/zpj/hotfix/annotation/Fix;
         clazz = "com.zpj.hotfix.demo.BugClass"
         method = "getText"
     .end annotation
 
     .prologue
-    .line 35
-    const-string v0, "getText11111111111111"
+    .line 36
+    new-instance v0, Lcom/zpj/hotfix/demo/NewClass;
+
+    iget-object v1, p0, Lcom/zpj/hotfix/demo/FixClass;->bugClass:Lcom/zpj/hotfix/demo/BugClass;
+
+    const-string v2, "text"
+
+    invoke-direct {v0, v1, v2}, Lcom/zpj/hotfix/demo/NewClass;-><init>(Lcom/zpj/hotfix/demo/BugClass;Ljava/lang/String;)V
+
+    invoke-virtual {v0}, Lcom/zpj/hotfix/demo/NewClass;->test()V
+
+    .line 37
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "getText11111111111111"
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    iget-object v1, p0, Lcom/zpj/hotfix/demo/FixClass;->bugClass:Lcom/zpj/hotfix/demo/BugClass;
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v0
 
     return-object v0
+.end method
+
+.method public getText2()Ljava/lang/String;
+    .registers 4
+
+    .prologue
+    .line 41
+    iget-object v0, p0, Lcom/zpj/hotfix/demo/FixClass;->bugClass:Lcom/zpj/hotfix/demo/BugClass;
+
+    .line 42
+    .local v0, "self":Lcom/zpj/hotfix/demo/BugClass;
+    new-instance v1, Lcom/zpj/hotfix/demo/NewClass;
+
+    const-string v2, "text"
+
+    invoke-direct {v1, v0, v2}, Lcom/zpj/hotfix/demo/NewClass;-><init>(Lcom/zpj/hotfix/demo/BugClass;Ljava/lang/String;)V
+
+    invoke-virtual {v1}, Lcom/zpj/hotfix/demo/NewClass;->test()V
+
+    .line 43
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "getText11111111111111"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    move-result-object v1
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    return-object v1
 .end method
 
 .method public test1()V

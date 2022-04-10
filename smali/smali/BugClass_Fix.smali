@@ -19,6 +19,97 @@
 .end method
 
 
+# direct methods
+.method private self()Lcom/zpj/hotfix/demo/BugClass;
+    .registers 2
+
+    iget-object v0, p0, Lcom/zpj/hotfix/demo/BugClass_Fix;->mBugObj:Lcom/zpj/hotfix/demo/BugClass;
+
+    .local v0, "_thisBugObj":Lcom/zpj/hotfix/demo/BugClass;
+
+    .line 43
+    return-object v0
+.end method
+
+.method public static testNewStaticMethod(Lcom/zpj/hotfix/demo/BugClass;IIIIILcom/zpj/hotfix/demo/BugClass;)V
+    .registers 7
+    .param p0, "a"    # Lcom/zpj/hotfix/demo/BugClass;
+    .param p1, "b"    # I
+    .param p2, "c"    # I
+    .param p3, "d"    # I
+    .param p4, "e"    # I
+    .param p5, "f"    # I
+    .param p6, "g"    # Lcom/zpj/hotfix/demo/BugClass;
+
+    .line 78
+    return-void
+.end method
+
+.method private testPrivateMethod()V
+    .registers 12
+    .annotation runtime Lcom/zpj/hotfix/annotation/Fix;
+        method = "testPrivateMethod"
+        clazz = "com.zpj.hotfix.demo.BugClass"
+    .end annotation
+
+    iget-object v0, p0, Lcom/zpj/hotfix/demo/BugClass_Fix;->mBugObj:Lcom/zpj/hotfix/demo/BugClass;
+
+    .local v0, "_thisBugObj":Lcom/zpj/hotfix/demo/BugClass;
+
+    .line 62
+    const-string v1, "TestSdk"
+
+    const-string v2, "fix testPrivateMethod"
+
+    invoke-static {v1, v2}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
+    .line 63
+    const/4 v4, 0x0
+
+    const/4 v5, 0x0
+
+    const/4 v6, 0x0
+
+    const/4 v7, 0x0
+
+    const/4 v8, 0x0
+
+    const/4 v9, 0x0
+
+    move-object v3, v0
+
+    move-object v10, v0
+
+    move-object v3, p0
+
+    invoke-virtual/range {v3 .. v10}, Lcom/zpj/hotfix/demo/BugClass_Fix;->test(IIIIIILcom/zpj/hotfix/demo/BugClass;)V
+
+    .line 64
+    return-void
+.end method
+
+.method private static testStaticMethod(I)I
+    .registers 3
+    .param p0, "a"    # I
+    .annotation runtime Lcom/zpj/hotfix/annotation/Fix;
+        clazz = "com.zpj.hotfix.demo.BugClass"
+        method = "testStaticMethod"
+    .end annotation
+
+    .line 68
+    const-string v0, "TestSdk"
+
+    const-string v1, "fix testStaticMethod"
+
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
+    .line 69
+    add-int/lit16 v0, p0, 0x3e8
+
+    return v0
+.end method
+
+
 # virtual methods
 .method public add(II)I
     .registers 5
@@ -29,18 +120,14 @@
         clazz = "com.zpj.hotfix.demo.BugClass"
     .end annotation
 
-    iget-object v0, p0, Lcom/zpj/hotfix/demo/BugClass_Fix;->mBugObj:Lcom/zpj/hotfix/demo/BugClass;
-
-    .local v0, "_thisBugObj":Lcom/zpj/hotfix/demo/BugClass;
-
-    .line 47
+    .line 57
     const-string v0, "TestSdk"
 
     const-string v1, "fix testAdd"
 
     invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 48
+    .line 58
     add-int v0, p1, p2
 
     return v0
@@ -53,17 +140,13 @@
         clazz = "com.zpj.hotfix.demo.BugClass"
     .end annotation
 
-    iget-object v0, p0, Lcom/zpj/hotfix/demo/BugClass_Fix;->mBugObj:Lcom/zpj/hotfix/demo/BugClass;
-
-    .local v0, "_thisBugObj":Lcom/zpj/hotfix/demo/BugClass;
-
-    .line 38
+    .line 48
     const/4 v0, 0x1
 
     :try_start_0
     div-int/lit8 v0, v0, 0x0
 
-    .line 39
+    .line 49
     .local v0, "a":I
     const-string v1, "TestSdk"
 
@@ -85,28 +168,28 @@
     :try_end_0
     .catch Ljava/lang/Exception; {:try_start_0 .. :try_end_0} :catch_0
 
-    .line 42
+    .line 52
     nop
 
     .end local v0    # "a":I
     goto :goto_0
 
-    .line 40
+    .line 50
     :catch_0
     move-exception v0
 
-    .line 41
+    .line 51
     .local v0, "e":Ljava/lang/Exception;
     invoke-virtual {v0}, Ljava/lang/Exception;->printStackTrace()V
 
-    .line 43
+    .line 53
     .end local v0    # "e":Ljava/lang/Exception;
     :goto_0
     return-void
 .end method
 
 .method public getText()Ljava/lang/String;
-    .registers 2
+    .registers 4
     .annotation runtime Lcom/zpj/hotfix/annotation/Fix;
         method = "getText"
         clazz = "com.zpj.hotfix.demo.BugClass"
@@ -117,109 +200,134 @@
     .local v0, "_thisBugObj":Lcom/zpj/hotfix/demo/BugClass;
 
     .line 32
-    new-instance v0, Lcom/zpj/hotfix/demo/NewClass;
+    new-instance v1, Lcom/zpj/hotfix/demo/NewClass;
 
-    invoke-direct {v0, p0}, Lcom/zpj/hotfix/demo/NewClass;-><init>(Lcom/zpj/hotfix/demo/BugClass;)V
+    const-string v2, "text"
 
-    invoke-virtual {v0}, Lcom/zpj/hotfix/demo/NewClass;->test()V
+    invoke-direct {v1, v0, v2}, Lcom/zpj/hotfix/demo/NewClass;-><init>(Lcom/zpj/hotfix/demo/BugClass;Ljava/lang/String;)V
+
+    invoke-virtual {v1}, Lcom/zpj/hotfix/demo/NewClass;->test()V
 
     .line 33
-    const-string v0, "fix--------------getText"
+    new-instance v1, Ljava/lang/StringBuilder;
 
-    return-object v0
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "fix--------------getText"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    return-object v1
+.end method
+
+.method public getText2()Ljava/lang/String;
+    .registers 4
+
+    .line 37
+    invoke-direct {p0}, Lcom/zpj/hotfix/demo/BugClass_Fix;->self()Lcom/zpj/hotfix/demo/BugClass;
+
+    move-result-object v0
+
+    .line 38
+    .local v0, "self":Lcom/zpj/hotfix/demo/BugClass;
+    new-instance v1, Lcom/zpj/hotfix/demo/NewClass;
+
+    const-string v2, "text"
+
+    invoke-direct {v1, v0, v2}, Lcom/zpj/hotfix/demo/NewClass;-><init>(Lcom/zpj/hotfix/demo/BugClass;Ljava/lang/String;)V
+
+    invoke-virtual {v1}, Lcom/zpj/hotfix/demo/NewClass;->test()V
+
+    .line 39
+    new-instance v1, Ljava/lang/StringBuilder;
+
+    invoke-direct {v1}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v2, "fix--------------getText"
+
+    invoke-virtual {v1, v2}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1, v0}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v1}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v1
+
+    return-object v1
+.end method
+
+.method public test(IIIIIILcom/zpj/hotfix/demo/BugClass;)V
+    .registers 16
+    .param p1, "a"    # I
+    .param p2, "b"    # I
+    .param p3, "c"    # I
+    .param p4, "d"    # I
+    .param p5, "e"    # I
+    .param p6, "f"    # I
+    .param p7, "g"    # Lcom/zpj/hotfix/demo/BugClass;
+
+    iget-object v0, p0, Lcom/zpj/hotfix/demo/BugClass_Fix;->mBugObj:Lcom/zpj/hotfix/demo/BugClass;
+
+    .local v0, "_thisBugObj":Lcom/zpj/hotfix/demo/BugClass;
+
+    .line 73
+    move-object v1, v0
+
+    move v2, p2
+
+    move v3, p3
+
+    move v4, p4
+
+    move v5, p5
+
+    move v6, p6
+
+    move-object v7, p7
+
+    move-object v1, p0
+
+    invoke-static/range {v1 .. v7}, Lcom/zpj/hotfix/demo/BugClass_Fix;->testNewStaticMethod(Lcom/zpj/hotfix/demo/BugClass;IIIIILcom/zpj/hotfix/demo/BugClass;)V
+
+    .line 74
+    return-void
 .end method
 
 .method public test1()V
-    .registers 6
+    .registers 5
     .annotation runtime Lcom/zpj/hotfix/annotation/Fix;
         method = "test1"
         clazz = "com.zpj.hotfix.demo.BugClass"
     .end annotation
 
-    iget-object v0, p0, Lcom/zpj/hotfix/demo/BugClass_Fix;->mBugObj:Lcom/zpj/hotfix/demo/BugClass;
-
-    .local v0, "_thisBugObj":Lcom/zpj/hotfix/demo/BugClass;
-
     .line 20
     invoke-direct {p0}, Lcom/zpj/hotfix/demo/BugClass_Fix;->_get_test()Lcom/zpj/hotfix/demo/TestClass;
 
-    move-result-object v1
+    move-result-object v0
 
 
-    const-string v2, "fix test1"
+    const-string v1, "fix test1"
 
-    invoke-virtual {v1, v2}, Lcom/zpj/hotfix/demo/TestClass;->test(Ljava/lang/String;)V
+    invoke-virtual {v0, v1}, Lcom/zpj/hotfix/demo/TestClass;->test(Ljava/lang/String;)V
 
     .line 21
     invoke-direct {p0}, Lcom/zpj/hotfix/demo/BugClass_Fix;->testPrivateMethod()V
 
     .line 22
-    const/4 v1, 0x1
+    const/4 v0, 0x1
 
-    invoke-static {v1}, Lcom/zpj/hotfix/demo/BugClass_Fix;->testStaticMethod(I)I
+    invoke-static {v0}, Lcom/zpj/hotfix/demo/BugClass_Fix;->testStaticMethod(I)I
 
-    move-result v1
+    move-result v0
 
     .line 23
-    .local v1, "a":I
-    invoke-direct {p0}, Lcom/zpj/hotfix/demo/BugClass_Fix;->_get_context()Landroid/content/Context;
-
-    move-result-object v2
-
-
-    invoke-virtual {v2}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
-
-    move-result-object v2
-
-    new-instance v3, Ljava/lang/StringBuilder;
-
-    invoke-direct {v3}, Ljava/lang/StringBuilder;-><init>()V
-
-    const-string v4, "fix TestSdk a="
-
-    invoke-virtual {v3, v4}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v3, v1}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v3}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
-
-    move-result-object v3
-
-    const/4 v4, 0x0
-
-    invoke-static {v2, v3, v4}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
-
-    move-result-object v2
-
-    invoke-virtual {v2}, Landroid/widget/Toast;->show()V
-
-    .line 24
-    return-void
-.end method
-
-.method public test2(Ljava/lang/String;)V
-    .registers 5
-    .param p1, "text"    # Ljava/lang/String;
-    .annotation runtime Lcom/zpj/hotfix/annotation/Fix;
-        method = "test2"
-        clazz = "com.zpj.hotfix.demo.BugClass"
-    .end annotation
-
-    iget-object v0, p0, Lcom/zpj/hotfix/demo/BugClass_Fix;->mBugObj:Lcom/zpj/hotfix/demo/BugClass;
-
-    .local v0, "_thisBugObj":Lcom/zpj/hotfix/demo/BugClass;
-
-    .line 27
-    invoke-direct {p0}, Lcom/zpj/hotfix/demo/BugClass_Fix;->_get_test()Lcom/zpj/hotfix/demo/TestClass;
-
-    move-result-object v1
-
-
-    const-string v2, "fix test2"
-
-    invoke-virtual {v1, v2}, Lcom/zpj/hotfix/demo/TestClass;->test(Ljava/lang/String;)V
-
-    .line 28
+    .local v0, "a":I
     invoke-direct {p0}, Lcom/zpj/hotfix/demo/BugClass_Fix;->_get_context()Landroid/content/Context;
 
     move-result-object v1
@@ -229,13 +337,67 @@
 
     move-result-object v1
 
-    const/4 v2, 0x0
+    new-instance v2, Ljava/lang/StringBuilder;
 
-    invoke-static {v1, p1, v2}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+    invoke-direct {v2}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v3, "fix TestSdk a="
+
+    invoke-virtual {v2, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2, v0}, Ljava/lang/StringBuilder;->append(I)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v2}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v2
+
+    const/4 v3, 0x0
+
+    invoke-static {v1, v2, v3}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
 
     move-result-object v1
 
     invoke-virtual {v1}, Landroid/widget/Toast;->show()V
+
+    .line 24
+    return-void
+.end method
+
+.method public test2(Ljava/lang/String;)V
+    .registers 4
+    .param p1, "text"    # Ljava/lang/String;
+    .annotation runtime Lcom/zpj/hotfix/annotation/Fix;
+        method = "test2"
+        clazz = "com.zpj.hotfix.demo.BugClass"
+    .end annotation
+
+    .line 27
+    invoke-direct {p0}, Lcom/zpj/hotfix/demo/BugClass_Fix;->_get_test()Lcom/zpj/hotfix/demo/TestClass;
+
+    move-result-object v0
+
+
+    const-string v1, "fix test2"
+
+    invoke-virtual {v0, v1}, Lcom/zpj/hotfix/demo/TestClass;->test(Ljava/lang/String;)V
+
+    .line 28
+    invoke-direct {p0}, Lcom/zpj/hotfix/demo/BugClass_Fix;->_get_context()Landroid/content/Context;
+
+    move-result-object v0
+
+
+    invoke-virtual {v0}, Landroid/content/Context;->getApplicationContext()Landroid/content/Context;
+
+    move-result-object v0
+
+    const/4 v1, 0x0
+
+    invoke-static {v0, p1, v1}, Landroid/widget/Toast;->makeText(Landroid/content/Context;Ljava/lang/CharSequence;I)Landroid/widget/Toast;
+
+    move-result-object v0
+
+    invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
     .line 29
     return-void
@@ -265,80 +427,6 @@ move-result-object v0
 check-cast v0, Landroid/content/Context;
 
 return-object v0
-
-.end method
-
-.method private testPrivateMethod()V
-
-.registers 3
-
-.annotation system Ldalvik/annotation/Throws;
-	value = {
-		Ljava/lang/Exception;
-	}
-.end annotation
-
-.prologue
-
-iget-object v0, p0, Lcom/zpj/hotfix/demo/BugClass_Fix;->mBugObj:Lcom/zpj/hotfix/demo/BugClass;
-
-const-string v1, "testPrivateMethod"
-
-invoke-static {v0, v1}, Lcom/zpj/hotfix/utils/Reflect;->invoke(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
-
-return-void.end method
-
-.method private static testStaticMethod(I)I
-
-.registers 5
-
-.param p0, "arg0"
-
-.annotation system Ldalvik/annotation/Throws;
-	value = {
-		Ljava/lang/Exception;
-	}
-.end annotation
-
-.prologue
-
-const/4 v3, 0x0
-
-const/4 v2, 0x1
-
-new-array v0, v2, [Ljava/lang/Class;
-
-sget-object v2, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
-
-aput-object v2, v0, v3
-
-.local v0, "arr1":[Ljava/lang/Class;
-
-const/4 v2, 0x1
-
-new-array v1, v2, [Ljava/lang/Object;
-
-invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-move-result-object v2
-
-aput-object v2, v1, v3
-
-.local v1, "arr2":[Ljava/lang/Object; 
-
-const-class v2, Lcom/zpj/hotfix/demo/BugClass;const-string v3, "testStaticMethod"
-
-invoke-static {v2, v3, v0, v1}, Lcom/zpj/hotfix/utils/Reflect;->invokeStatic(Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;
-
-move-result-object v0
-
-check-cast v0, Ljava/lang/Integer;
-
-invoke-virtual {v0}, Ljava/lang/Integer;->intValue()I
-
-move-result v0
-
-return v0
 
 .end method
 

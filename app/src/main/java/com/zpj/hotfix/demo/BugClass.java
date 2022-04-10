@@ -60,12 +60,21 @@ public class BugClass {
 
     private void testPrivateMethod() {
         Log.d(TAG, "fix testPrivateMethod");
+        test(0, 0, 0, 0,0 , 0, this);
     }
 
     private static int testStaticMethod(int a) {
         // 去掉log日志该方法将会被内联优化，epic无法hook
         Log.d(TAG, "fix testStaticMethod");
         return a + 1000;
+    }
+
+    public void test(int a, int b, int c, int d, int e, int f, BugClass g) {
+        testNewStaticMethod(this, b, c, d, e, f, g);
+    }
+
+    public static void testNewStaticMethod(BugClass a, int b, int c, int d, int e, int f, BugClass g) {
+        Log.d(TAG, "testNewStaticMethod");
     }
 
 }

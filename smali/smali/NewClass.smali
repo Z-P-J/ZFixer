@@ -12,9 +12,10 @@
 
 
 # direct methods
-.method public constructor <init>(Lcom/zpj/hotfix/demo/BugClass;)V
-    .locals 0
+.method public constructor <init>(Lcom/zpj/hotfix/demo/BugClass;Ljava/lang/String;)V
+    .registers 3
     .param p1, "bugClass"    # Lcom/zpj/hotfix/demo/BugClass;
+    .param p2, "text"    # Ljava/lang/String;
 
     .line 11
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
@@ -29,7 +30,7 @@
 
 # virtual methods
 .method public test()V
-    .locals 2
+    .registers 3
 
     .line 16
     new-instance v0, Ljava/lang/StringBuilder;

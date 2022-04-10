@@ -2,6 +2,9 @@
 .super Ljava/lang/Object;
 .source "BugClass.java"
 
+# interfaces
+.implements Lcom/zpj/hotfix/demo/MyInterface;
+
 
 # static fields
 .field private static final TAG:Ljava/lang/String; = "TestSdk"
@@ -45,17 +48,39 @@
 .end method
 
 .method private testPrivateMethod()V
-    .registers 3
+    .registers 9
 
     .prologue
+    const/4 v1, 0x0
+
     .line 62
     const-string v0, "TestSdk"
 
-    const-string v1, "fix testPrivateMethod"
+    const-string v2, "fix testPrivateMethod"
 
-    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+    invoke-static {v0, v2}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
     .line 63
+    invoke-virtual {p0}, Lcom/zpj/hotfix/demo/BugClass;->sayHello()V
+
+    move-object v0, p0
+
+    move v2, v1
+
+    move v3, v1
+
+    move v4, v1
+
+    move v5, v1
+
+    move v6, v1
+
+    move-object v7, p0
+
+    .line 64
+    invoke-virtual/range {v0 .. v7}, Lcom/zpj/hotfix/demo/BugClass;->test(IIIIIILcom/zpj/hotfix/demo/BugClass;)V
+
+    .line 65
     return-void
 .end method
 
@@ -64,14 +89,14 @@
     .param p0, "a"    # I
 
     .prologue
-    .line 67
+    .line 69
     const-string v0, "TestSdk"
 
     const-string v1, "fix testStaticMethod"
 
     invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
 
-    .line 68
+    .line 70
     add-int/lit16 v0, p0, 0x3e8
 
     return v0
@@ -226,6 +251,55 @@
     return-object v1
 .end method
 
+.method public sayHello()V
+    .registers 3
+
+    .prologue
+    .line 75
+    const-string v0, "TestSdk"
+
+    const-string v1, "sayHello"
+
+    invoke-static {v0, v1}, Landroid/util/Log;->d(Ljava/lang/String;Ljava/lang/String;)I
+
+    .line 76
+    return-void
+.end method
+
+.method public test(IIIIIILcom/zpj/hotfix/demo/BugClass;)V
+    .registers 16
+    .param p1, "a"    # I
+    .param p2, "b"    # I
+    .param p3, "c"    # I
+    .param p4, "d"    # I
+    .param p5, "e"    # I
+    .param p6, "f"    # I
+    .param p7, "g"    # Lcom/zpj/hotfix/demo/BugClass;
+
+    .prologue
+    .line 80
+    move-object v0, p0
+
+    move-object v1, p0
+
+    move v2, p2
+
+    move v3, p3
+
+    move v4, p4
+
+    move v5, p5
+
+    move v6, p6
+
+    move-object v7, p7
+
+    invoke-virtual/range {v0 .. v7}, Lcom/zpj/hotfix/demo/BugClass;->test222(Lcom/zpj/hotfix/demo/BugClass;IIIIILcom/zpj/hotfix/demo/BugClass;)V
+
+    .line 81
+    return-void
+.end method
+
 .method public test1()V
     .registers 5
 
@@ -313,5 +387,20 @@
     invoke-virtual {v0}, Landroid/widget/Toast;->show()V
 
     .line 29
+    return-void
+.end method
+
+.method public test222(Lcom/zpj/hotfix/demo/BugClass;IIIIILcom/zpj/hotfix/demo/BugClass;)V
+    .registers 8
+    .param p1, "a"    # Lcom/zpj/hotfix/demo/BugClass;
+    .param p2, "b"    # I
+    .param p3, "c"    # I
+    .param p4, "d"    # I
+    .param p5, "e"    # I
+    .param p6, "f"    # I
+    .param p7, "g"    # Lcom/zpj/hotfix/demo/BugClass;
+
+    .prologue
+    .line 85
     return-void
 .end method

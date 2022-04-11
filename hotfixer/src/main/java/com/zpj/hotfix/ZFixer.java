@@ -96,12 +96,17 @@ public class ZFixer {
                 try {
 
 //                        Class<?> fixer = Class.forName("com.zpj.sdk.TestSdk$Fixer");
-                    Class<?> fixer = fixClazz;
-                    Constructor<?> constructor = fixer.getConstructor(bugClazz);
-                    constructor.setAccessible(true);
-                    Object obj = constructor.newInstance(param.thisObject);
+//                    Class<?> fixer = fixClazz;
+//                    Constructor<?> constructor = fixer.getConstructor(bugClazz);
+//                    constructor.setAccessible(true);
+//                    Object obj = constructor.newInstance(param.thisObject);
 
-                    Method method = fixer.getDeclaredMethod(fixMethod.getName(), fixMethod.getParameterTypes());
+                    Object obj = null;
+                    if (param.thisObject != null) {
+                        obj = FixObjectManager.get(param.thisObject, fixClazz);
+                    }
+
+                    Method method = fixClazz.getDeclaredMethod(fixMethod.getName(), fixMethod.getParameterTypes());
                     method.setAccessible(true);
                     Log.d(TAG, "fix method=" + method);
                     Object result = method.invoke(obj, param.args);

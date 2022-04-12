@@ -34,6 +34,15 @@ public class BugClass {
     }
 
     public void callBug() {
+//        this.test.test();
+//        try {
+//            int a = (1 / 0);
+//            Log.d(TAG, "callBug a=" + a);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        this.test.test(this, 0, 0, 0, 0, 0, this);
+
         int a = (1 / 0);
         Log.d(TAG, "callBug a=" + a);
     }

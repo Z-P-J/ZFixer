@@ -15,6 +15,12 @@ public class Reflect {
         return (T) field.get(null);
     }
 
+    public static void setStaticField(Class<?> clazz, String name, Object value) throws Exception {
+        Field field = clazz.getDeclaredField(name);
+        field.setAccessible(true);
+        field.set(null, value);
+    }
+
     public static <T> T getField(Object obj, String name) throws Exception {
         Field field = obj.getClass().getDeclaredField(name);
         field.setAccessible(true);

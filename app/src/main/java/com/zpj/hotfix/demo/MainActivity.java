@@ -8,6 +8,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.zpj.hotfix.ZFixer;
+import com.zpj.hotfix.patch_dev.extend.Base;
+import com.zpj.hotfix.patch_dev.extend.Test;
 import com.zpj.hotfix.utils.Reflect;
 
 import java.io.File;
@@ -28,17 +30,41 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickLoadPatch(View view) throws ClassNotFoundException {
-        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "patch.dex");
+//        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "patch.dex");
+//        try {
+//            copy(this, "patch.dex", dst.getAbsolutePath());
+//            ZFixer.fix(getApplicationContext(), dst.getAbsolutePath());
+//        } catch (IOException | IllegalAccessException | NoSuchFieldException e) {
+//            e.printStackTrace();
+//        }
+
+
+//        // 测试父子类同时修改的情况
+//        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "test_extend.dex");
+//        try {
+//            copy(this, "test_extend.dex", dst.getAbsolutePath());
+//            ZFixer.fix(getApplicationContext(), dst.getAbsolutePath());
+//        } catch (IOException | IllegalAccessException | NoSuchFieldException e) {
+//            e.printStackTrace();
+//        }
+
+        // 测试内部类
+        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "test_inner.dex");
         try {
-            copy(this, "patch.dex", dst.getAbsolutePath());
+            copy(this, "test_inner.dex", dst.getAbsolutePath());
             ZFixer.fix(getApplicationContext(), dst.getAbsolutePath());
-        } catch (IOException e) {
+        } catch (IOException | IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
         }
     }
 
     public void test1(View view) {
         mSdk.test1();
+
+        new Base().test();
+        new Test().test1();
+//
+        new com.zpj.hotfix.patch_dev.inner.Test().test();
     }
 
     public void test2(View view) {
@@ -90,20 +116,14 @@ public class MainActivity extends AppCompatActivity {
             dst.getParentFile().mkdirs();
         }
 
-        InputStream in = context.getAssets().open(assetName);
-        try {
-            OutputStream out = new FileOutputStream(dst);
-            try {
+        try (InputStream in = context.getAssets().open(assetName)) {
+            try (OutputStream out = new FileOutputStream(dst)) {
                 byte[] buf = new byte[1024];
                 int len;
                 while ((len = in.read(buf)) > 0) {
                     out.write(buf, 0, len);
                 }
-            } finally {
-                out.close();
             }
-        } finally {
-            in.close();
         }
     }
 

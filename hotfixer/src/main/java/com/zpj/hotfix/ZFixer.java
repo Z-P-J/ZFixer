@@ -5,14 +5,20 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.zpj.hotfix.annotation.Fix;
+import com.zpj.hotfix.utils.Reflect;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Enumeration;
 import java.util.WeakHashMap;
+import java.util.function.ObjDoubleConsumer;
 
+import dalvik.system.DexClassLoader;
 import dalvik.system.DexFile;
+import dalvik.system.PathClassLoader;
 import de.robv.android.xposed.DexposedBridge;
 import de.robv.android.xposed.XC_MethodHook;
 import de.robv.android.xposed.XposedHelpers;
@@ -23,28 +29,18 @@ public class ZFixer {
 
     private static final WeakHashMap<String, XC_MethodHook.Unhook> UNHOOK_MAP = new WeakHashMap<>();
 
-    public static void fix(Context context, String dexPath) throws IOException, ClassNotFoundException {
+    public static void fix(Context context, String dexPath) throws IOException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
 
         final DexFile dexFile = DexFile.loadDex(dexPath,
                 context.getDir("dex", Context.MODE_PRIVATE).getAbsolutePath(), Context.MODE_PRIVATE);
 
-        ClassLoader patchClassLoader = new ClassLoader(context.getClassLoader()) {
-            @Override
-            protected Class<?> findClass(String className)
-                    throws ClassNotFoundException {
-                Class<?> clazz = dexFile.loadClass(className, this);
-                if (clazz == null) {
-                    clazz = context.getClassLoader().loadClass(className);
-                }
-                return clazz;
-            }
-        };
+        loadPatch(context, dexPath);
 
         Enumeration<String> entrys = dexFile.entries();
         Class<?> clazz = null;
         while (entrys.hasMoreElements()) {
             String entry = entrys.nextElement();
-            clazz = dexFile.loadClass(entry, patchClassLoader);
+            clazz = context.getClassLoader().loadClass(entry);
             if (clazz != null) {
                 fixClass(clazz, context.getClassLoader());
             }
@@ -127,5 +123,47 @@ public class ZFixer {
             UNHOOK_MAP.put(bugMethod, unhook);
         }
     }
+
+    public static void loadPatch(Context context, String dexPath) throws NoSuchFieldException, IllegalAccessException {
+        ClassLoader classLoader = context.getClassLoader();
+
+        Field pathListField = Reflect.findField(classLoader, "pathList");
+        if (pathListField == null) {
+            return;
+        }
+        Object pathList = pathListField.get(classLoader);
+        Field dexElementsField = Reflect.findField(pathList, "dexElements");
+        if (dexElementsField == null) {
+            return;
+        }
+
+        Object[] dexElements = (Object[]) dexElementsField.get(pathList);
+
+
+        DexClassLoader patchClassLoader = new DexClassLoader(dexPath, null, null, classLoader);
+        Object patchPathList = pathListField.get(patchClassLoader);
+        Object[] patchDexElements = (Object[]) dexElementsField.get(patchPathList);
+
+        if (patchDexElements == null) {
+            return;
+        }
+
+        int patchLength = patchDexElements.length;
+        int length = dexElements.length;
+
+        Object[] newDexElements = (Object[]) Array.newInstance(dexElements.getClass().getComponentType(), patchLength + length);
+
+
+
+        System.arraycopy(patchDexElements, 0, newDexElements, 0, patchLength);
+        System.arraycopy(dexElements, 0, newDexElements, patchLength, length);
+
+        dexElementsField.set(pathList, newDexElements);
+
+    }
+
+//    private static Object[] makeDexElements(ClassLoader classLoader, ) {
+//        return Reflect.invoke()
+//    }
 
 }

@@ -17,6 +17,7 @@ public class FixObjectManager {
                 fixObject = FIX_OBJECT_MAP.get(object);
                 if (fixObject == null) {
                     Constructor<?> constructor = clazz.getConstructor(object.getClass());
+                    constructor.setAccessible(true);
                     fixObject = constructor.newInstance(object);
                     FIX_OBJECT_MAP.put(object, fixObject);
                 }

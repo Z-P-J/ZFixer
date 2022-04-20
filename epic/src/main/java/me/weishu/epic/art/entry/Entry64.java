@@ -16,6 +16,8 @@
 
 package me.weishu.epic.art.entry;
 
+import android.util.Log;
+
 import com.taobao.android.dexposed.utility.Logger;
 
 import java.lang.reflect.Method;
@@ -152,6 +154,7 @@ public class Entry64 {
         int numberOfArgs = originMethodInfo.paramNumber;
         Class<?>[] typeOfArgs = originMethodInfo.paramTypes;
         Object[] arguments = new Object[numberOfArgs];
+        Log.e(TAG, "numberOfArgs=" + numberOfArgs);
 
         Object receiver;
 
@@ -203,8 +206,10 @@ public class Entry64 {
                 if (numberOfArgs == 6) break;
 
                 for (int i = 6; i < numberOfArgs; i++) {
+                    Log.d(TAG, "i=" + i);
                     byte[] argsInStack = EpicNative.get(sp + i * 8 + 16, 8);
                     arguments[i] = wrapArgument(typeOfArgs[i], self, argsInStack);
+                    Log.d(TAG, "arguments[i]=" + arguments[i]);
                 }
             } while (false);
         }
@@ -245,6 +250,7 @@ public class Entry64 {
     }
 
     private static Object wrapArgument(Class<?> type, long self, byte[] value) {
+        Log.w(TAG, "wrapArgument type=" + type + " self=" + self);
         final ByteBuffer byteBuffer = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN);
         if (type.isPrimitive()) {
             if (type == int.class) {

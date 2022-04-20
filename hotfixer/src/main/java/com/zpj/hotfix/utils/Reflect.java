@@ -1,8 +1,19 @@
 package com.zpj.hotfix.utils;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+import com.zpj.hotfix.patch_dev.extend.Base;
+
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+
+import me.weishu.epic.art.EpicNative;
 
 public class Reflect {
 
@@ -92,6 +103,36 @@ public class Reflect {
         }
         throw new NoSuchMethodException("Method " + name + " with parameters "
                 + Arrays.asList(parameterTypes) + " not found in " + clazz);
+    }
+
+//    @RequiresApi(api = Build.VERSION_CODES.O)
+//    public static  <T> T invokeSuper(final Object object, String name, Class<?> returnType, Class<?>[] parameterTypes, Object[] args)
+//            throws Throwable {
+//        return invokeSuper(object.getClass(), name, returnType, parameterTypes, args);
+//    }
+//
+//    @RequiresApi(api = Build.VERSION_CODES.O)
+//    public static  <T> T invokeSuper(final Class<?> clazz, String name, Class<?> returnType, Class<?>[] parameterTypes, Object[] args)
+//            throws Throwable {
+//        MethodHandles.Lookup lookup = MethodHandles.lookup();
+//
+//        Field allowedModes = MethodHandles.Lookup.class.getDeclaredField("allowedModes");
+//        allowedModes.setAccessible(true);
+//        allowedModes.set(lookup, -1);  // 关键，没有这三步的操作findSpecial方法内部this.checkSpecialCaller(specialCaller);会抛异常
+//
+//        MethodHandle h1 = lookup.findSpecial(clazz.getSuperclass(), name,
+//                MethodType.methodType(returnType, parameterTypes), clazz);
+//        return (T) h1.invoke(null, args);
+//    }
+
+    public static <T> T invokeSuperObject(final Object object, String name, String signature, Object...args)
+            throws Throwable {
+        return (T) EpicNative.invokeSuperObject(object, name, signature, args);
+    }
+
+    public static void invokeSuperVoid(final Object object, String name, String signature, Object...args)
+            throws Throwable {
+        EpicNative.invokeSuperVoid(object, name, signature, args);
     }
 
 }

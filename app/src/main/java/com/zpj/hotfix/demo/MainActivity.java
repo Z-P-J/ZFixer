@@ -48,10 +48,19 @@ public class MainActivity extends AppCompatActivity {
 //            e.printStackTrace();
 //        }
 
-        // 测试内部类
-        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "test_inner.dex");
+//        // 测试内部类
+//        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "test_inner.dex");
+//        try {
+//            copy(this, "test_inner.dex", dst.getAbsolutePath());
+//            ZFixer.fix(getApplicationContext(), dst.getAbsolutePath());
+//        } catch (IOException | IllegalAccessException | NoSuchFieldException e) {
+//            e.printStackTrace();
+//        }
+
+        // 测试super方法调用
+        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "test_super.dex");
         try {
-            copy(this, "test_inner.dex", dst.getAbsolutePath());
+            copy(this, "test_super.dex", dst.getAbsolutePath());
             ZFixer.fix(getApplicationContext(), dst.getAbsolutePath());
         } catch (IOException | IllegalAccessException | NoSuchFieldException e) {
             e.printStackTrace();
@@ -65,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
         new Test().test1();
 //
         new com.zpj.hotfix.patch_dev.inner.Test().test();
+
+        com.zpj.hotfix.patch_dev.super_method.Test superTest = new com.zpj.hotfix.patch_dev.super_method.Test();
+        superTest.test();
+        superTest.test(100, 0, 0, 0, 0, this, 0, 0, 0, 0, 0, 0, 0, 0L);
     }
 
     public void test2(View view) {

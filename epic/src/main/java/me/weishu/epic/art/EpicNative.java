@@ -115,6 +115,10 @@ public final class EpicNative {
      */
     public static native void disableMovingGc(int api);
 
+    public static native Object invokeSuperObject(Object object, String name, String sig, Object...args);
+
+    public static native void invokeSuperVoid(Object object, String name, String sig, Object...args);
+
 
     private EpicNative() {
     }

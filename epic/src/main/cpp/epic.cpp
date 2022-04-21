@@ -89,7 +89,42 @@ void *__self() {
 
 static int api_level;
 
+static jmethodID method_id_int;
+static jmethodID method_id_long;
+static jmethodID method_id_double;
+static jmethodID method_id_float;
+static jmethodID method_id_boolean;
+static jmethodID method_id_char;
+static jmethodID method_id_byte;
+static jmethodID method_id_short;
+
 void init_entries(JNIEnv *env) {
+
+    jclass clazz = env->FindClass("java/lang/Integer");
+    method_id_int = env->GetMethodID(clazz, "intValue", "()I");
+
+    clazz = env->FindClass("java/lang/Long");
+    method_id_long = env->GetMethodID(clazz, "longValue", "()J");
+
+    clazz = env->FindClass("java/lang/Double");
+    method_id_double = env->GetMethodID(clazz, "doubleValue", "()D");
+
+    clazz = env->FindClass("java/lang/Float");
+    method_id_float = env->GetMethodID(clazz, "floatValue", "()F");
+
+    clazz = env->FindClass("java/lang/Boolean");
+    method_id_boolean = env->GetMethodID(clazz, "booleanValue", "()Z");
+
+    clazz = env->FindClass("java/lang/Character");
+    method_id_char = env->GetMethodID(clazz, "charValue", "()C");
+
+    clazz = env->FindClass("java/lang/Byte");
+    method_id_byte = env->GetMethodID(clazz, "byteValue", "()B");
+
+    clazz = env->FindClass("java/lang/Short");
+    method_id_short = env->GetMethodID(clazz, "shortValue", "()S");
+
+
     char api_level_str[5];
     __system_property_get("ro.build.version.sdk", api_level_str);
     api_level = atoi(api_level_str);
@@ -390,24 +425,132 @@ epic_activate(JNIEnv *env, jclass jclazz, jlong jumpToAddress, jlong pc, jlong s
     return result;
 }
 
+/**
+ * 将参数中的包装类对象进行拆箱操作
+ * @param env JNI环境
+ * @param jclazz 当前类
+ * @param desc 方法签名描述
+ * @param args 原有参数数据
+ * @param parameters jvalue参数数组
+ */
+void
+unpackArgs(JNIEnv *env, jclass jclazz, const char *desc, jobjectArray args, jvalue *parameters) {
+
+    int index = 0;
+
+    // 0:normal, 1:object, 2:array
+    int type = 0;
+
+    int start = 0;
+    for (int i = 0; i < strlen(desc); i++) {
+        char c = desc[i];
+
+
+        if (c == '(') {
+            continue;
+        }
+        if (c == ')') {
+            break;
+        }
+
+        if (type == 1) {
+            if (c == ';') {
+                type = 0;
+                parameters[index].l = env->GetObjectArrayElement(args, index);
+                index++;
+            }
+            continue;
+        } else if (type == 2) {
+            if (c == '[') {
+                start = i;
+            } else if (i - start == 1 && (c == 'I' || c == 'J' || c == 'D' || c == 'F'
+                                          || c == 'Z' || c == 'C' || c == 'B' || c == 'S')) {
+                type = 0;
+                parameters[index].l = env->GetObjectArrayElement(args, index);
+                index++;
+            } else if (c == ';') {
+                type = 0;
+                parameters[index].l = env->GetObjectArrayElement(args, index);
+                index++;
+            }
+
+            continue;
+        }
+
+
+        if (c == 'L') {
+            type = 1;
+            continue;
+        } else if (c == '[') {
+            type = 2;
+            start = i;
+            continue;
+        }
+
+
+        jobject obj = env->GetObjectArrayElement(args, index);
+        switch (c) {
+            case 'I':
+                parameters[index].i = env->CallIntMethod(obj, method_id_int);
+                break;
+            case 'J':
+                parameters[index].j = env->CallLongMethod(obj, method_id_long);
+                break;
+            case 'D':
+                parameters[index].d = env->CallDoubleMethod(obj, method_id_double);
+                break;
+            case 'F':
+                parameters[index].f = env->CallFloatMethod(obj, method_id_float);
+                break;
+            case 'Z':
+                parameters[index].z = env->CallBooleanMethod(obj, method_id_boolean);
+                break;
+            case 'C':
+                parameters[index].c = env->CallCharMethod(obj, method_id_char);
+                break;
+            case 'B':
+                parameters[index].b = env->CallByteMethod(obj, method_id_byte);
+                break;
+            case 'S':
+                parameters[index].s = env->CallShortMethod(obj, method_id_short);
+                break;
+            default:
+                env->ThrowNew(jclazz, "signature error!");
+        }
+        index++;
+    }
+}
+
 jobject
-epic_invokeSuperObject(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig, jobjectArray args) {
+epic_invokeSuperObject(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                       jobjectArray args) {
     jclass clazz = env->GetObjectClass(obj);
     jclass parentClass = env->GetSuperclass(clazz);
+    const char *desc = env->GetStringUTFChars(sig, nullptr);
     jmethodID methodId = env->GetMethodID(parentClass,
-            env->GetStringUTFChars(name, nullptr),
-            env->GetStringUTFChars(sig, nullptr));
-    return env->CallNonvirtualObjectMethod(obj, parentClass, methodId, args);
+                                          env->GetStringUTFChars(name, nullptr),
+                                          desc);
+
+    jvalue parameters[env->GetArrayLength(args)];
+    unpackArgs(env, jclazz, desc, args, parameters);
+
+    env->CallNonvirtualObjectMethodA(obj, parentClass, methodId, parameters);
 }
 
 void
-epic_invokeSuperVoid(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig, jobjectArray args) {
+epic_invokeSuperVoid(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                     jobjectArray args) {
     jclass clazz = env->GetObjectClass(obj);
     jclass parentClass = env->GetSuperclass(clazz);
+    const char *desc = env->GetStringUTFChars(sig, nullptr);
     jmethodID methodId = env->GetMethodID(parentClass,
                                           env->GetStringUTFChars(name, nullptr),
-                                          env->GetStringUTFChars(sig, nullptr));
-    env->CallNonvirtualVoidMethod(obj, parentClass, methodId, args);
+                                          desc);
+
+    jvalue parameters[env->GetArrayLength(args)];
+    unpackArgs(env, jclazz, desc, args, parameters);
+
+    env->CallNonvirtualVoidMethodA(obj, parentClass, methodId, parameters);
 }
 
 static JNINativeMethod dexposedMethods[] = {
@@ -432,7 +575,7 @@ static JNINativeMethod dexposedMethods[] = {
         {"activateNative",                          "(JJJJ[B)Z",                                                                                     (void *) epic_activate},
         {"isGetObjectAvailable",                    "()Z",                                                                                           (void *) epic_isGetObjectAvaliable},
         {"invokeSuperObject",                       "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;", (void *) epic_invokeSuperObject},
-        {"invokeSuperVoid",                       "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V", (void *) epic_invokeSuperVoid}
+        {"invokeSuperVoid",                         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V",                  (void *) epic_invokeSuperVoid}
 };
 
 static int registerNativeMethods(JNIEnv *env, const char *className,

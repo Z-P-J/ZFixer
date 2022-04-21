@@ -42,10 +42,10 @@ public class Test extends Base {
 //        Reflect.invokeSuperVoid(mOrigin, "name", "sig", arr);
 //    }
 //
-    private void _super_test(int a, Integer b, int c, int d, int e, Object f, int g, int h, int i, int j, long k, int l) throws Throwable {
-        Object o = obj;
-        Object[] arr = {a, b, c, d, e, f, g, h, i, j, k, l};
-        Reflect.invokeSuperVoid(o, "name", "sig", arr);
-    }
+//    private void _super_test(int a, Integer b, int c, int d, int e, Object f, int g, int h, int i, int j, long k, int l) throws Throwable {
+//        Object o = obj;
+//        Object[] arr = {a, b, c, d, e, f, g, h, i, j, k, l};
+//        Reflect.invokeSuperVoid(o, "name", "sig", arr);
+//    }
 
 }

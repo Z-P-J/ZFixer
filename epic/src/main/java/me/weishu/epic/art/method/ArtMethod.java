@@ -42,6 +42,8 @@ public class ArtMethod {
 
     private static final String TAG = "ArtMethod";
 
+    private static final int CLASS_ISPREVERIFIED = 1 << 16;
+
     /**
      * The address of the Art method. this is not the real memory address of the java.lang.reflect.Method
      * But the address used by VM which stand for the Java method.
@@ -420,6 +422,15 @@ public class ArtMethod {
 
     public void setAccessFlags(int newFlags) {
         Offset.write(address, Offset.ART_ACCESS_FLAG_OFFSET, newFlags);
+    }
+
+    /**
+     * 清除CLASS_ISPREVERIFIED标志，解决pre-verify问题
+     */
+    public void clearPreVerify() {
+        int flags = getAccessFlags();
+        flags &= ~CLASS_ISPREVERIFIED;
+        setAccessFlags(flags);
     }
 
     public void setEntryPointFromJni(long entryPointFromJni) {

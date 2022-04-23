@@ -18,9 +18,9 @@ package me.weishu.epic.art.method;
 
 import android.os.Build;
 
-import com.taobao.android.dexposed.utility.Debug;
-import com.taobao.android.dexposed.utility.Logger;
-import com.taobao.android.dexposed.utility.Runtime;
+import me.weishu.epic.art.utils.Debug;
+import me.weishu.epic.art.utils.Logger;
+import me.weishu.epic.art.utils.Runtime;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

@@ -1,6 +1,8 @@
-package com.taobao.android.dexposed.utility;
+package me.weishu.epic.art.utils;
 
 import android.util.Log;
+
+import me.weishu.epic.art.utils.Debug;
 
 /**
  * Created by weishu on 17/11/10.
@@ -37,6 +39,10 @@ public class Logger {
         if (DEBUG) {
             Log.e(preFix + tag, msg, e);
         }
+    }
+
+    public synchronized static void logThrowable(Throwable t) {
+        i(preFix + "Throwable", Log.getStackTraceString(t));
     }
 
 }

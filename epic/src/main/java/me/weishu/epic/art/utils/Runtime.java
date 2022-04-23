@@ -15,13 +15,14 @@
  * limitations under the License.
  */
 
-package com.taobao.android.dexposed.utility;
+package me.weishu.epic.art.utils;
 
 import android.util.Log;
 
 import java.lang.reflect.Method;
 
 import me.weishu.epic.art.method.ArtMethod;
+import me.weishu.reflection.Reflection;
 
 public class Runtime {
 
@@ -34,7 +35,9 @@ public class Runtime {
 
     static {
         try {
-            g64 = (boolean) Class.forName("dalvik.system.VMRuntime").getDeclaredMethod("is64Bit").invoke(Class.forName("dalvik.system.VMRuntime").getDeclaredMethod("getRuntime").invoke(null));
+            Class<?> vmClass = Class.forName("dalvik.system.VMRuntime");
+            g64 = (boolean) vmClass.getDeclaredMethod("is64Bit")
+                    .invoke(vmClass.getDeclaredMethod("getRuntime").invoke(null));
         } catch (Exception e) {
             Log.e(TAG, "get is64Bit failed, default not 64bit!", e);
             g64 = false;

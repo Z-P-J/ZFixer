@@ -15,24 +15,16 @@
  * limitations under the License.
  */
 
-package com.taobao.android.dexposed.utility;
-
-import android.util.Log;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.Method;
+package me.weishu.epic.art.utils;
 
 import me.weishu.epic.BuildConfig;
-import me.weishu.epic.art.method.ArtMethod;
 
 public final class Debug {
-    private static final String TAG = "Dexposed";
 
     public static final boolean DEBUG = BuildConfig.DEBUG;
 
     private static final String RELASE_WRAN_STRING = "none in release mode.";
+
     private Debug() {
     }
 
@@ -60,19 +52,6 @@ public final class Debug {
         return String.format("%02X", b);
     }
 
-    public static String dump(byte[] b, long start) {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < b.length; i++) {
-            if (i % 8 == 0) {
-                sb.append(addrHex(start + i)).append(":");
-            }
-            sb.append(byteHex(b[i])).append(" ");
-            if (i % 8 == 7) {
-                sb.append("\n");
-            }
-        }
-        return sb.toString();
-    }
     public static String hexdump(byte[] bytes, long start) {
         if (!DEBUG) {
             return RELASE_WRAN_STRING;
@@ -90,30 +69,4 @@ public final class Debug {
         return sb.toString();
     }
 
-    public static String methodDescription(Method method) {
-        return method.getDeclaringClass().getName() + "->" + method.getName() + " @" +
-                addrHex(ArtMethod.of(method).getEntryPointFromQuickCompiledCode()) +
-                " +" + addrHex(ArtMethod.of(method).getAddress());
-    }
-
-    public static void dumpMaps() {
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader("/proc/self/maps"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                Log.i(TAG, line);
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "dumpMaps error");
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    // ignore.
-                }
-            }
-        }
-    }
 }

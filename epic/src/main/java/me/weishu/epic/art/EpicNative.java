@@ -16,18 +16,19 @@
 
 package me.weishu.epic.art;
 
+import android.app.Application;
 import android.util.Log;
 
-import com.taobao.android.dexposed.DeviceCheck;
-import com.taobao.android.dexposed.utility.Debug;
-import com.taobao.android.dexposed.utility.Logger;
-import com.taobao.android.dexposed.utility.Unsafe;
+import me.weishu.epic.art.utils.Debug;
+import me.weishu.epic.art.utils.Logger;
+import me.weishu.epic.art.utils.Reflector;
+import me.weishu.epic.art.utils.Unsafe;
+import me.weishu.reflection.Reflection;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 
-import de.robv.android.xposed.XposedHelpers;
-
-import static com.taobao.android.dexposed.utility.Debug.addrHex;
+import static me.weishu.epic.art.utils.Debug.addrHex;
 
 
 public final class EpicNative {
@@ -37,11 +38,30 @@ public final class EpicNative {
     static {
         try {
             System.loadLibrary("epic");
-            useUnsafe = DeviceCheck.isYunOS() || !isGetObjectAvailable();
+            // TODO 在application中初始化时调用
+            Reflection.unseal(getApplication());
+            useUnsafe = !isGetObjectAvailable();
             Log.i(TAG, "use unsafe ? " + useUnsafe);
         } catch (Throwable e) {
             Log.e(TAG, "init EpicNative error", e);
         }
+    }
+
+    // TODO 在application中初始化时调用
+    private static Application getApplication() throws InvocationTargetException, NoSuchMethodException, ClassNotFoundException, IllegalAccessException {
+        Application app = null;
+        try {
+            app = (Application) Class.forName("android.app.ActivityThread").getMethod("currentApplication").invoke(null);
+            if (app == null)
+                throw new IllegalStateException("Static initialization of Applications must be on main thread.");
+        } catch (final Exception e) {
+            try {
+                app = (Application) Class.forName("android.app.AppGlobals").getMethod("getInitialApplication").invoke(null);
+            } catch (final Exception ex) {
+                throw ex;
+            }
+        }
+        return app;
     }
 
     public static native long mmap(int length);
@@ -123,19 +143,24 @@ public final class EpicNative {
     private EpicNative() {
     }
 
+    public static long getNativePeer() {
+        try {
+            return Reflector.getField(Thread.currentThread(), "nativePeer");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static boolean compileMethod(Member method) {
-        final long nativePeer = XposedHelpers.getLongField(Thread.currentThread(), "nativePeer");
-        return compileMethod(method, nativePeer);
+        return compileMethod(method, getNativePeer());
     }
 
     public static Object getObject(long address) {
-        final long nativePeer = XposedHelpers.getLongField(Thread.currentThread(), "nativePeer");
-        return getObject(nativePeer, address);
+        return getObject(getNativePeer(), address);
     }
 
     public static void MakeInitializedClassVisibilyInitialized() {
-        final long nativePeer = XposedHelpers.getLongField(Thread.currentThread(), "nativePeer");
-        MakeInitializedClassVisibilyInitialized(nativePeer);
+        MakeInitializedClassVisibilyInitialized(getNativePeer());
     }
 
     public static long map(int length) {

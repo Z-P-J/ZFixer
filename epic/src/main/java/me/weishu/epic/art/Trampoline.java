@@ -16,9 +16,9 @@
 
 package me.weishu.epic.art;
 
-import com.taobao.android.dexposed.utility.Debug;
-import com.taobao.android.dexposed.utility.Logger;
-import com.taobao.android.dexposed.utility.Runtime;
+import me.weishu.epic.art.utils.Debug;
+import me.weishu.epic.art.utils.Logger;
+import me.weishu.epic.art.utils.Runtime;
 
 import java.lang.reflect.Method;
 import java.util.HashSet;

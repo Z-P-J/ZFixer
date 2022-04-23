@@ -18,9 +18,6 @@ package me.weishu.epic.art.entry;
 
 import android.util.Log;
 
-import com.taobao.android.dexposed.utility.Logger;
-
-import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -28,10 +25,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.robv.android.xposed.DexposedBridge;
-import de.robv.android.xposed.XposedHelpers;
 import me.weishu.epic.art.Epic;
 import me.weishu.epic.art.EpicNative;
+import me.weishu.epic.art.hook.HookManager;
+import me.weishu.epic.art.utils.Logger;
 
 @SuppressWarnings({"unused", "ConstantConditions"})
 public class Entry64 {
@@ -40,43 +37,43 @@ public class Entry64 {
 
     //region ---------------callback---------------
     private static int onHookInt(Object artmethod, Object receiver, Object[] args) {
-        return (Integer) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Integer) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static long onHookLong(Object artmethod, Object receiver, Object[] args) {
-        return (Long) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Long) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static double onHookDouble(Object artmethod, Object receiver, Object[] args) {
-        return (Double) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Double) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static char onHookChar(Object artmethod, Object receiver, Object[] args) {
-        return (Character) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Character) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static short onHookShort(Object artmethod, Object receiver, Object[] args) {
-        return (Short) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Short) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static float onHookFloat(Object artmethod, Object receiver, Object[] args) {
-        return (Float) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Float) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static Object onHookObject(Object artmethod, Object receiver, Object[] args) {
-        return DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static void onHookVoid(Object artmethod, Object receiver, Object[] args) {
-        DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static boolean onHookBoolean(Object artmethod, Object receiver, Object[] args) {
-        return (Boolean) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Boolean) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static byte onHookByte(Object artmethod, Object receiver, Object[] args) {
-        return (Byte) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Byte) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
     //endregion
 
@@ -130,7 +127,7 @@ public class Entry64 {
         // sp + 16 = r4
 
         Logger.d(TAG, "self:" + Long.toHexString(self));
-        final long nativePeer = XposedHelpers.getLongField(Thread.currentThread(), "nativePeer");
+        final long nativePeer = EpicNative.getNativePeer();
         Logger.d(TAG, "java thread native peer:" + Long.toHexString(nativePeer));
 
         Logger.d(TAG, "struct:" + Long.toHexString(struct));

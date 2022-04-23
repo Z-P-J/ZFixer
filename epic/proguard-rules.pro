@@ -29,13 +29,13 @@
 -keep class me.weishu.epic.art.** {*;}
 
 # delete log in release mode.
--assumenosideeffects class com.taobao.android.dexposed.utility.Logger {
+-assumenosideeffects class me.weishu.epic.art.utils.Logger {
           public static void i(...);
           public static void w(...);
           public static void d(...);
           public static void e(...);
 }
 
--assumenosideeffects class com.taobao.android.dexposed.utility.Debug {
+-assumenosideeffects class me.weishu.epic.art.utils.Debug {
           public static *** hexdump(...);
 }

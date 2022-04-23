@@ -5,23 +5,18 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.zpj.hotfix.annotation.Fix;
-import com.zpj.hotfix.utils.Reflect;
+import com.zpj.hotfix.patch.dex.DexInstaller;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
+import java.io.File;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.WeakHashMap;
-import java.util.function.ObjDoubleConsumer;
 
-import dalvik.system.DexClassLoader;
 import dalvik.system.DexFile;
-import dalvik.system.PathClassLoader;
-import de.robv.android.xposed.DexposedBridge;
-import de.robv.android.xposed.XC_MethodHook;
-import de.robv.android.xposed.XposedHelpers;
+import me.weishu.epic.art.hook.HookManager;
+import me.weishu.epic.art.hook.XC_MethodHook;
+import me.weishu.epic.art.utils.Reflector;
 
 public class ZFixer {
 
@@ -29,12 +24,14 @@ public class ZFixer {
 
     private static final WeakHashMap<String, XC_MethodHook.Unhook> UNHOOK_MAP = new WeakHashMap<>();
 
-    public static void fix(Context context, String dexPath) throws IOException, ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    public static void fix(Context context, String dexPath) throws Throwable {
 
+        File optPath = context.getDir("dex", Context.MODE_PRIVATE);
         final DexFile dexFile = DexFile.loadDex(dexPath,
-                context.getDir("dex", Context.MODE_PRIVATE).getAbsolutePath(), Context.MODE_PRIVATE);
+                optPath.getAbsolutePath(), Context.MODE_PRIVATE);
 
-        loadPatch(context, dexPath);
+//        loadPatch(context, dexPath);
+        DexInstaller.install(context.getClassLoader(), Collections.singletonList(new File(dexPath)), optPath);
 
         Enumeration<String> entrys = dexFile.entries();
         Class<?> clazz = null;
@@ -65,7 +62,7 @@ public class ZFixer {
         }
     }
 
-    private static void fixClass(Class<?> fixClazz, ClassLoader classLoader) throws ClassNotFoundException {
+    private static void fixClass(Class<?> fixClazz, ClassLoader classLoader) throws ClassNotFoundException, NoSuchMethodException {
         Method[] methods = fixClazz.getDeclaredMethods();
         Fix fix;
         String clz;
@@ -84,7 +81,7 @@ public class ZFixer {
     }
 
     private static void replaceMethod(ClassLoader classLoader, final String bugClazzName,
-                               String bugMethod, Class<?> fixClazz, Method fixMethod) throws ClassNotFoundException {
+                               String bugMethod, Class<?> fixClazz, Method fixMethod) throws ClassNotFoundException, NoSuchMethodException {
         Class<?> bugClazz = classLoader.loadClass(bugClazzName);
         XC_MethodHook callback = new XC_MethodHook() {
             @Override
@@ -116,54 +113,12 @@ public class ZFixer {
                 }
             }
         };
-        Method m = XposedHelpers.findMethodExact(bugClazz, fixMethod.getName(), fixMethod.getParameterTypes());
+        Method m = Reflector.findMethod(bugClazz, fixMethod.getName(), fixMethod.getParameterTypes());
 
-        XC_MethodHook.Unhook unhook = DexposedBridge.hookMethod(m, callback);
+        XC_MethodHook.Unhook unhook = HookManager.hookMethod(m, callback);
         synchronized (UNHOOK_MAP) {
             UNHOOK_MAP.put(bugMethod, unhook);
         }
     }
-
-    public static void loadPatch(Context context, String dexPath) throws NoSuchFieldException, IllegalAccessException {
-        ClassLoader classLoader = context.getClassLoader();
-
-        Field pathListField = Reflect.findField(classLoader, "pathList");
-        if (pathListField == null) {
-            return;
-        }
-        Object pathList = pathListField.get(classLoader);
-        Field dexElementsField = Reflect.findField(pathList, "dexElements");
-        if (dexElementsField == null) {
-            return;
-        }
-
-        Object[] dexElements = (Object[]) dexElementsField.get(pathList);
-
-
-        DexClassLoader patchClassLoader = new DexClassLoader(dexPath, null, null, classLoader);
-        Object patchPathList = pathListField.get(patchClassLoader);
-        Object[] patchDexElements = (Object[]) dexElementsField.get(patchPathList);
-
-        if (patchDexElements == null) {
-            return;
-        }
-
-        int patchLength = patchDexElements.length;
-        int length = dexElements.length;
-
-        Object[] newDexElements = (Object[]) Array.newInstance(dexElements.getClass().getComponentType(), patchLength + length);
-
-
-
-        System.arraycopy(patchDexElements, 0, newDexElements, 0, patchLength);
-        System.arraycopy(dexElements, 0, newDexElements, patchLength, length);
-
-        dexElementsField.set(pathList, newDexElements);
-
-    }
-
-//    private static Object[] makeDexElements(ClassLoader classLoader, ) {
-//        return Reflect.invoke()
-//    }
 
 }

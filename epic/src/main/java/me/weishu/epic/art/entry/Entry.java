@@ -19,9 +19,9 @@ package me.weishu.epic.art.entry;
 import android.os.Build;
 import android.util.Pair;
 
-import de.robv.android.xposed.DexposedBridge;
-import com.taobao.android.dexposed.utility.Debug;
-import com.taobao.android.dexposed.utility.Logger;
+import me.weishu.epic.art.hook.HookManager;
+import me.weishu.epic.art.utils.Debug;
+import me.weishu.epic.art.utils.Logger;
 
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
@@ -42,43 +42,43 @@ public class Entry {
 
     //region ---------------callback---------------
     private static int onHookInt(Object artmethod, Object receiver, Object[] args) {
-        return (Integer) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Integer) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static long onHookLong(Object artmethod, Object receiver, Object[] args) {
-        return (Long) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Long) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static double onHookDouble(Object artmethod, Object receiver, Object[] args) {
-        return (Double) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Double) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static char onHookChar(Object artmethod, Object receiver, Object[] args) {
-        return (Character) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Character) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static short onHookShort(Object artmethod, Object receiver, Object[] args) {
-        return (Short) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Short) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static float onHookFloat(Object artmethod, Object receiver, Object[] args) {
-        return (Float) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Float) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static Object onHookObject(Object artmethod, Object receiver, Object[] args) {
-        return DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static void onHookVoid(Object artmethod, Object receiver, Object[] args) {
-        DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static boolean onHookBoolean(Object artmethod, Object receiver, Object[] args) {
-        return (Boolean) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Boolean) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
 
     private static byte onHookByte(Object artmethod, Object receiver, Object[] args) {
-        return (Byte) DexposedBridge.handleHookedArtMethod(artmethod, receiver, args);
+        return (Byte) HookManager.handleHookedArtMethod(artmethod, receiver, args);
     }
     //endregion
 

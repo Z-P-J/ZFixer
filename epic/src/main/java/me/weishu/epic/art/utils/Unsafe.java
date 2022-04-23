@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.taobao.android.dexposed.utility;
+package me.weishu.epic.art.utils;
 
 import android.util.Log;
 
@@ -24,7 +24,7 @@ public final class Unsafe {
     private static final String TAG = "Unsafe";
 
     private static Object unsafe;
-    private static Class unsafeClass;
+    private static Class<?> unsafeClass;
 
     static {
         try {
@@ -47,7 +47,7 @@ public final class Unsafe {
     }
 
     @SuppressWarnings("unchecked")
-    public static int arrayBaseOffset(Class cls) {
+    public static int arrayBaseOffset(Class<?> cls) {
         try {
             return (int) unsafeClass.getDeclaredMethod("arrayBaseOffset", Class.class).invoke(unsafe, cls);
         } catch (Exception e) {
@@ -57,7 +57,7 @@ public final class Unsafe {
     }
 
     @SuppressWarnings("unchecked")
-    public static int arrayIndexScale(Class cls) {
+    public static int arrayIndexScale(Class<?> cls) {
         try {
             return (int) unsafeClass.getDeclaredMethod("arrayIndexScale", Class.class).invoke(unsafe, cls);
         } catch (Exception e) {

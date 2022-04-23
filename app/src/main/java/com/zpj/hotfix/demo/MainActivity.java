@@ -30,13 +30,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void clickLoadPatch(View view) throws ClassNotFoundException {
-//        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "patch.dex");
-//        try {
-//            copy(this, "patch.dex", dst.getAbsolutePath());
-//            ZFixer.fix(getApplicationContext(), dst.getAbsolutePath());
-//        } catch (IOException | IllegalAccessException | NoSuchFieldException e) {
-//            e.printStackTrace();
-//        }
+        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "patch.dex");
+        try {
+            copy(this, "patch.dex", dst.getAbsolutePath());
+            ZFixer.fix(getApplicationContext(), dst.getAbsolutePath());
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
 
 
 //        // 测试父子类同时修改的情况
@@ -57,14 +57,14 @@ public class MainActivity extends AppCompatActivity {
 //            e.printStackTrace();
 //        }
 
-        // 测试super方法调用
-        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "test_super.dex");
-        try {
-            copy(this, "test_super.dex", dst.getAbsolutePath());
-            ZFixer.fix(getApplicationContext(), dst.getAbsolutePath());
-        } catch (IOException | IllegalAccessException | NoSuchFieldException e) {
-            e.printStackTrace();
-        }
+//        // 测试super方法调用
+//        File dst = new File(getDir("cache", Context.MODE_PRIVATE), "test_super.dex");
+//        try {
+//            copy(this, "test_super.dex", dst.getAbsolutePath());
+//            ZFixer.fix(getApplicationContext(), dst.getAbsolutePath());
+//        } catch (Throwable throwable) {
+//            throwable.printStackTrace();
+//        }
     }
 
     public void test1(View view) {

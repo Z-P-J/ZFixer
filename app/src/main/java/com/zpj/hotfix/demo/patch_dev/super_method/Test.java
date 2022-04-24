@@ -1,8 +1,6 @@
-package com.zpj.hotfix.patch_dev.super_method;
+package com.zpj.hotfix.demo.patch_dev.super_method;
 
 import android.util.Log;
-
-import com.zpj.hotfix.utils.Reflect;
 
 public class Test extends Base {
 

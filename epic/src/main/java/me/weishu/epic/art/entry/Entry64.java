@@ -136,7 +136,7 @@ public class Entry64 {
 
         Logger.d(TAG, "stack:" + sp);
 
-        final byte[] rr1 = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(x1).array();
+
         final byte[] r2 = EpicNative.get(struct + 8, 8);
 
         final byte[] r3 = EpicNative.get(struct + 16, 8);
@@ -158,114 +158,68 @@ public class Entry64 {
 
         self = nativePeer;
 
+        byte[] value = new byte[8];
         if (isStatic) {
             receiver = null;
-            // TODO 静态调用是否也存在参数有误的情况？
-            do {
-                if (numberOfArgs == 0) break;
-                arguments[0] = wrapArgument(typeOfArgs[0], self, rr1);
-                if (numberOfArgs == 1) break;
-                arguments[1] = wrapArgument(typeOfArgs[1], self, r2);
-                if (numberOfArgs == 2) break;
-                arguments[2] = wrapArgument(typeOfArgs[2], self, r3);
-                if (numberOfArgs == 3) break;
-                arguments[3] = wrapArgument(typeOfArgs[3], self, x4);
-                if (numberOfArgs == 4) break;
-                arguments[4] = wrapArgument(typeOfArgs[4], self, x5);
-                if (numberOfArgs == 5) break;
-                arguments[5] = wrapArgument(typeOfArgs[5], self, x6);
-                if (numberOfArgs == 6) break;
-                arguments[6] = wrapArgument(typeOfArgs[6], self, x7);
-                if (numberOfArgs == 7) break;
 
-                for (int i = 7; i < numberOfArgs; i++) {
-                    byte[] argsInStack = EpicNative.get(sp + i * 8 + 8, 8);
-                    arguments[i] = wrapArgument(typeOfArgs[i], self, argsInStack);
+            long address = sp + 8;
+            for (int i = 0; i < numberOfArgs; i++) {
+                Class<?> type = typeOfArgs[i];
+                int len;
+                if (type == long.class || type == double.class) {
+                    len = 8;
+                } else {
+                    len = 4;
                 }
-            } while (false);
 
+                if (i == 0) {
+                    final byte[] rr1 = ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(x1).array();
+                    arguments[0] = wrapArgument(type, self, rr1);
+                } else if (i == 1) {
+                    arguments[1] = wrapArgument(type, self, r2);
+                } else if (i == 2) {
+                    arguments[2] = wrapArgument(type, self, r3);
+                } else {
+                    Arrays.fill(value, (byte) 0);
+                    System.arraycopy(EpicNative.get(address, len), 0, value, 0, len);
+
+                    arguments[i] = wrapArgument(type, self, value);
+                }
+                address += len;
+            }
         } else {
 
             receiver = EpicNative.getObject(self, x1);
             //Logger.i(TAG, "this :" + receiver);
 
-
-            do {
-                if (numberOfArgs == 0) break;
-                Log.e(TAG, "value0=" + Arrays.toString(r2));
-                arguments[0] = wrapArgument(typeOfArgs[0], self, r2);
-                Log.e(TAG, "arguments[0]=" + arguments[0]);
-                if (numberOfArgs == 1) break;
-                Log.e(TAG, "value1=" + Arrays.toString(r3));
-                arguments[1] = wrapArgument(typeOfArgs[1], self, r3);
-                Log.e(TAG, "arguments[1]=" + arguments[1]);
-                if (numberOfArgs == 2) break;
-
-
-                Class<?> type0 = typeOfArgs[0];
-                Class<?> type1 = typeOfArgs[0];
-
-                long address = sp + 16;
-                if (type0 == long.class || type0 == double.class) {
-                    address += 4;
-                }
-                if (type1 == long.class || type1 == double.class) {
-                    address += 8;
+            long address = sp + 12;
+            for (int i = 0; i < numberOfArgs; i++) {
+                Log.d(TAG, "--------------------arg" + i + "-----------------");
+                Class<?> type = typeOfArgs[i];
+                int len;
+                if (type == long.class || type == double.class) {
+                    len = 8;
                 } else {
-                    address += 4;
+                    len = 4;
                 }
 
-                byte[] value = new byte[8];
-
-                for (int i = 0; i < numberOfArgs; i++) {
-                    byte[] argsInStack = EpicNative.get(sp + i * 8, 8);
-                    Log.v(TAG, "i=" + i + "argsInStack=" + Arrays.toString(argsInStack));
-                }
-
-                for (int i = 2; i < numberOfArgs; i++) {
-                    Log.d(TAG, "--------------------arg" + i + "-----------------");
-                    Class<?> type = typeOfArgs[i];
-                    int len;
-                    if (type == long.class || type == double.class) {
-                        len = 8;
-                    } else {
-                        len = 4;
-                    }
+                if (i == 0) {
+                    arguments[0] = wrapArgument(type, self, r2);
+                } else if (i == 1) {
+                    arguments[1] = wrapArgument(type, self, r3);
+                } else {
                     Arrays.fill(value, (byte) 0);
                     System.arraycopy(EpicNative.get(address, len), 0, value, 0, len);
 
                     Log.e(TAG, "value" + i + "=" + Arrays.toString(value));
 
                     arguments[i] = wrapArgument(type, self, value);
-
-                    address += len;
-                    Log.e(TAG, "arguments[" + i + "]=" + arguments[i]);
-                    Log.d(TAG, "--------------------arg" + i + "-----------------");
                 }
-            } while (false);
 
-//            do {
-//                if (numberOfArgs == 0) break;
-//                arguments[0] = wrapArgument(typeOfArgs[0], self, r2);
-//                if (numberOfArgs == 1) break;
-//                arguments[1] = wrapArgument(typeOfArgs[1], self, r3);
-//                if (numberOfArgs == 2) break;
-//                arguments[2] = wrapArgument(typeOfArgs[2], self, x4);
-//                if (numberOfArgs == 3) break;
-//                arguments[3] = wrapArgument(typeOfArgs[3], self, x5);
-//                if (numberOfArgs == 4) break;
-//                arguments[4] = wrapArgument(typeOfArgs[4], self, x6);
-//                if (numberOfArgs == 5) break;
-//                arguments[5] = wrapArgument(typeOfArgs[5], self, x7);
-//                if (numberOfArgs == 6) break;
-//
-//                for (int i = 6; i < numberOfArgs; i++) {
-//                    Log.d(TAG, "i=" + i);
-//                    byte[] argsInStack = EpicNative.get(sp + i * 8 + 16, 8);
-//                    arguments[i] = wrapArgument(typeOfArgs[i], self, argsInStack);
-//                    Log.d(TAG, "arguments[i]=" + arguments[i]);
-//                }
-//            } while (false);
+                address += len;
+                Log.e(TAG, "arguments[" + i + "]=" + arguments[i]);
+                Log.d(TAG, "--------------------arg" + i + "-----------------");
+            }
         }
 
         Logger.i(TAG, "arguments:" + Arrays.toString(arguments));

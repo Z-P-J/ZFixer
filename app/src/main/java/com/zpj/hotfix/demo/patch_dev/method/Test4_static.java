@@ -1,6 +1,4 @@
-package com.zpj.hotfix.patch_dev.method;
-
-import android.util.Log;
+package com.zpj.hotfix.demo.patch_dev.method;
 
 import com.zpj.hotfix.utils.Reflect;
 

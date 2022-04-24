@@ -1,14 +1,5 @@
 package com.zpj.hotfix.utils;
 
-import android.os.Build;
-
-import androidx.annotation.RequiresApi;
-
-import com.zpj.hotfix.patch_dev.extend.Base;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;

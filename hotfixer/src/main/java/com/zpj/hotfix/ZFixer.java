@@ -12,6 +12,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.WeakHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import dalvik.system.DexFile;
 import me.weishu.epic.art.hook.HookManager;
@@ -23,6 +24,18 @@ public class ZFixer {
     private static final String TAG = "ZFixer";
 
     private static final WeakHashMap<String, XC_MethodHook.Unhook> UNHOOK_MAP = new WeakHashMap<>();
+
+    private final AtomicBoolean mInit = new AtomicBoolean(false);
+
+    private static final class Holder {
+        private static final ZFixer FIXER = new ZFixer();
+    }
+
+    public void init(Patcher patcher) {
+        if (mInit.compareAndSet(false, true)) {
+
+        }
+    }
 
     public static void fix(Context context, String dexPath) throws Throwable {
 

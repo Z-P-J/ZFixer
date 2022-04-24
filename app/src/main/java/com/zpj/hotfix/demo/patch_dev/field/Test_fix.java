@@ -1,10 +1,10 @@
-package com.zpj.hotfix.patch_dev.field;
+package com.zpj.hotfix.demo.patch_dev.field;
 
 import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.zpj.hotfix.patch_dev.method.Test;
+import com.zpj.hotfix.demo.patch_dev.method.Test;
 import com.zpj.hotfix.utils.Reflect;
 
 public class Test_fix {

@@ -7,6 +7,7 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import me.weishu.epic.art.Epic;
 import me.weishu.epic.art.method.ArtMethod;
@@ -16,10 +17,30 @@ public class HookManager {
 
     private static final String TAG = "HookManager";
 
+    private static final WeakHashMap<String, XC_MethodHook.Unhook> UNHOOK_MAP = new WeakHashMap<>();
+
     private static final Object[] EMPTY_ARRAY = new Object[0];
 
     private static final Map<Member, CopyOnWriteSortedSet<XC_MethodHook>>
             HOOKED_METHOD_CALLBACKS = new HashMap<>();
+
+    public static void unfix(String method) {
+        synchronized (UNHOOK_MAP) {
+            XC_MethodHook.Unhook unhook = UNHOOK_MAP.remove(method);
+            if (unhook != null) {
+                unhook.unhook();
+            }
+        }
+    }
+
+    public static void unfixAll() {
+        synchronized (UNHOOK_MAP) {
+            for (XC_MethodHook.Unhook unhook : UNHOOK_MAP.values()) {
+                unhook.unhook();
+            }
+            UNHOOK_MAP.clear();
+        }
+    }
 
     public static XC_MethodHook.Unhook hookMethod(final Member hookMethod, XC_MethodHook callback) {
         if (!(hookMethod instanceof Method) && !(hookMethod instanceof Constructor<?>)) {
@@ -53,12 +74,16 @@ public class HookManager {
                 Epic.hookMethod(((Constructor<?>) hookMethod));
             }
         }
-        return callback.new Unhook(hookMethod) {
+        XC_MethodHook.Unhook unhook = callback.new Unhook(hookMethod) {
             @Override
             public void unhook() {
                 unhookMethod(getHookedMethod());
             }
         };
+        synchronized (UNHOOK_MAP) {
+            UNHOOK_MAP.put(hookMethod.getName(), unhook);
+        }
+        return unhook;
     }
 
     public static Object handleHookedArtMethod(Object artMethodObject, Object thisObject, Object[] args) {

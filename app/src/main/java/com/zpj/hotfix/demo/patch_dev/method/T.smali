@@ -1,21 +1,32 @@
-.class public Lcom/zpj/hotfix/patch_dev/method/T;
+.class public Lcom/zpj/hotfix/demo/patch_dev/method/T;
 .super Ljava/lang/Object;
 .source "T.java"
 
 
+# instance fields
+.field private mOrigin:Ljava/lang/Object;
+
+
 # direct methods
 .method public constructor <init>()V
-    .registers 1
+    .registers 2
 
     .prologue
     .line 5
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
+    .line 7
+    new-instance v0, Ljava/lang/Object;
+
+    invoke-direct {v0}, Ljava/lang/Object;-><init>()V
+
+    iput-object v0, p0, Lcom/zpj/hotfix/demo/patch_dev/method/T;->mOrigin:Ljava/lang/Object;
+
     return-void
 .end method
 
 .method private test(IJSZDFBLjava/lang/String;)V
-    .registers 17
+    .registers 15
     .param p1, "i"    # I
     .param p2, "l"    # J
     .param p4, "s"    # S
@@ -31,133 +42,141 @@
     .end annotation
 
     .prologue
-    .line 10
-    const-string v0, "test"
+    .line 11
+    const/4 v2, 0x7
 
-    const/4 v1, 0x7
-
-    new-array v1, v1, [Ljava/lang/Class;
+    new-array v0, v2, [Ljava/lang/Class;
 
     const/4 v2, 0x0
 
     sget-object v3, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
 
-    aput-object v3, v1, v2
+    aput-object v3, v0, v2
 
     const/4 v2, 0x1
 
     sget-object v3, Ljava/lang/Long;->TYPE:Ljava/lang/Class;
 
-    aput-object v3, v1, v2
+    aput-object v3, v0, v2
 
     const/4 v2, 0x2
 
     sget-object v3, Ljava/lang/Short;->TYPE:Ljava/lang/Class;
 
-    aput-object v3, v1, v2
+    aput-object v3, v0, v2
 
     const/4 v2, 0x3
 
     sget-object v3, Ljava/lang/Double;->TYPE:Ljava/lang/Class;
 
-    aput-object v3, v1, v2
+    aput-object v3, v0, v2
 
     const/4 v2, 0x4
 
     sget-object v3, Ljava/lang/Float;->TYPE:Ljava/lang/Class;
 
-    aput-object v3, v1, v2
+    aput-object v3, v0, v2
 
     const/4 v2, 0x5
 
     sget-object v3, Ljava/lang/Byte;->TYPE:Ljava/lang/Class;
 
-    aput-object v3, v1, v2
+    aput-object v3, v0, v2
 
     const/4 v2, 0x6
 
     const-class v3, Ljava/lang/String;
 
-    aput-object v3, v1, v2
-
-    const/16 v2, 0x8
-
-    new-array v2, v2, [Ljava/lang/Object;
-
-    const/4 v3, 0x0
+    aput-object v3, v0, v2
 
     .line 12
+    .local v0, "arr1":[Ljava/lang/Class;, "[Ljava/lang/Class<*>;"
+    const/16 v2, 0x8
+
+    new-array v1, v2, [Ljava/lang/Object;
+
+    const/4 v2, 0x0
+
     invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
 
-    move-result-object v4
+    move-result-object v3
 
-    aput-object v4, v2, v3
+    aput-object v3, v1, v2
 
-    const/4 v3, 0x1
+    const/4 v2, 0x1
 
     invoke-static {p2, p3}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
 
-    move-result-object v4
+    move-result-object v3
 
-    aput-object v4, v2, v3
+    aput-object v3, v1, v2
 
-    const/4 v3, 0x2
+    const/4 v2, 0x2
 
     invoke-static {p4}, Ljava/lang/Short;->valueOf(S)Ljava/lang/Short;
 
-    move-result-object v4
+    move-result-object v3
 
-    aput-object v4, v2, v3
+    aput-object v3, v1, v2
 
-    const/4 v3, 0x3
+    const/4 v2, 0x3
 
     invoke-static {p5}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
 
-    move-result-object v4
+    move-result-object v3
 
-    aput-object v4, v2, v3
+    aput-object v3, v1, v2
 
-    const/4 v3, 0x4
+    const/4 v2, 0x4
 
     invoke-static {p6, p7}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
 
-    move-result-object v4
+    move-result-object v3
 
-    aput-object v4, v2, v3
+    aput-object v3, v1, v2
 
-    const/4 v3, 0x5
+    const/4 v2, 0x5
 
     invoke-static {p8}, Ljava/lang/Float;->valueOf(F)Ljava/lang/Float;
 
-    move-result-object v4
+    move-result-object v3
 
-    aput-object v4, v2, v3
+    aput-object v3, v1, v2
 
-    const/4 v3, 0x6
+    const/4 v2, 0x6
 
     invoke-static {p9}, Ljava/lang/Byte;->valueOf(B)Ljava/lang/Byte;
 
-    move-result-object v4
+    move-result-object v3
 
-    aput-object v4, v2, v3
+    aput-object v3, v1, v2
 
-    const/4 v3, 0x7
+    const/4 v2, 0x7
 
-    aput-object p10, v2, v3
-
-    .line 10
-    invoke-static {p0, v0, v1, v2}, Lcom/zpj/hotfix/utils/Reflect;->invoke(Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;
+    aput-object p10, v1, v2
 
     .line 13
+    .local v1, "arr2":[Ljava/lang/Object;
+    iget-object v2, p0, Lcom/zpj/hotfix/demo/patch_dev/method/T;->mOrigin:Ljava/lang/Object;
+
+    const-string v3, "test"
+
+    invoke-static {v2, v3, v0, v1}, Lcom/zpj/hotfix/utils/Reflect;->invoke(Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;
+
+    .line 14
     return-void
 .end method
 
-.method private test2(IIII)V
-    .registers 13
-    .param p1, "i"    # I
-    .param p2, "a"    # I
-    .param p3, "b"    # I
-    .param p4, "c"    # I
+.method private static testStatic(IJSZDFBLjava/lang/String;)V
+    .registers 15
+    .param p0, "i"    # I
+    .param p1, "l"    # J
+    .param p3, "s"    # S
+    .param p4, "b"    # Z
+    .param p5, "d"    # D
+    .param p7, "f"    # F
+    .param p8, "by"    # B
+    .param p9, "string"    # Ljava/lang/String;
     .annotation system Ldalvik/annotation/Throws;
         value = {
             Ljava/lang/Exception;
@@ -165,66 +184,126 @@
     .end annotation
 
     .prologue
-    const/4 v3, 0x4
-
-    const/4 v7, 0x3
-
-    const/4 v6, 0x2
-
-    const/4 v5, 0x1
-
-    const/4 v4, 0x0
-
     .line 18
-    const-string v0, "test"
+    const/4 v2, 0x7
 
-    new-array v1, v3, [Ljava/lang/Class;
+    new-array v0, v2, [Ljava/lang/Class;
 
-    sget-object v2, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
+    const/4 v2, 0x0
 
-    aput-object v2, v1, v4
+    sget-object v3, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
 
-    sget-object v2, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
+    aput-object v3, v0, v2
 
-    aput-object v2, v1, v5
+    const/4 v2, 0x1
 
-    sget-object v2, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
+    sget-object v3, Ljava/lang/Long;->TYPE:Ljava/lang/Class;
 
-    aput-object v2, v1, v6
+    aput-object v3, v0, v2
 
-    sget-object v2, Ljava/lang/Integer;->TYPE:Ljava/lang/Class;
+    const/4 v2, 0x2
 
-    aput-object v2, v1, v7
+    sget-object v3, Ljava/lang/Short;->TYPE:Ljava/lang/Class;
 
-    new-array v2, v3, [Ljava/lang/Object;
+    aput-object v3, v0, v2
+
+    const/4 v2, 0x3
+
+    sget-object v3, Ljava/lang/Double;->TYPE:Ljava/lang/Class;
+
+    aput-object v3, v0, v2
+
+    const/4 v2, 0x4
+
+    sget-object v3, Ljava/lang/Float;->TYPE:Ljava/lang/Class;
+
+    aput-object v3, v0, v2
+
+    const/4 v2, 0x5
+
+    sget-object v3, Ljava/lang/Byte;->TYPE:Ljava/lang/Class;
+
+    aput-object v3, v0, v2
+
+    const/4 v2, 0x6
+
+    const-class v3, Ljava/lang/String;
+
+    aput-object v3, v0, v2
+
+    .line 19
+    .local v0, "arr1":[Ljava/lang/Class;, "[Ljava/lang/Class<*>;"
+    const/16 v2, 0x8
+
+    new-array v1, v2, [Ljava/lang/Object;
+
+    const/4 v2, 0x0
+
+    invoke-static {p0}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+
+    move-result-object v3
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x1
+
+    invoke-static {p1, p2}, Ljava/lang/Long;->valueOf(J)Ljava/lang/Long;
+
+    move-result-object v3
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x2
+
+    invoke-static {p3}, Ljava/lang/Short;->valueOf(S)Ljava/lang/Short;
+
+    move-result-object v3
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x3
+
+    invoke-static {p4}, Ljava/lang/Boolean;->valueOf(Z)Ljava/lang/Boolean;
+
+    move-result-object v3
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x4
+
+    invoke-static {p5, p6}, Ljava/lang/Double;->valueOf(D)Ljava/lang/Double;
+
+    move-result-object v3
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x5
+
+    invoke-static {p7}, Ljava/lang/Float;->valueOf(F)Ljava/lang/Float;
+
+    move-result-object v3
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x6
+
+    invoke-static {p8}, Ljava/lang/Byte;->valueOf(B)Ljava/lang/Byte;
+
+    move-result-object v3
+
+    aput-object v3, v1, v2
+
+    const/4 v2, 0x7
+
+    aput-object p9, v1, v2
 
     .line 20
-    invoke-static {p1}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
+    .local v1, "arr2":[Ljava/lang/Object;
+    const-class v2, Lcom/zpj/hotfix/demo/patch_dev/method/T;
 
-    move-result-object v3
+    const-string v3, "test"
 
-    aput-object v3, v2, v4
-
-    invoke-static {p2}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v3
-
-    aput-object v3, v2, v5
-
-    invoke-static {p3}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v3
-
-    aput-object v3, v2, v6
-
-    invoke-static {p4}, Ljava/lang/Integer;->valueOf(I)Ljava/lang/Integer;
-
-    move-result-object v3
-
-    aput-object v3, v2, v7
-
-    .line 18
-    invoke-static {p0, v0, v1, v2}, Lcom/zpj/hotfix/utils/Reflect;->invoke(Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;
+    invoke-static {v2, v3, v0, v1}, Lcom/zpj/hotfix/utils/Reflect;->invokeStatic(Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;
 
     .line 21
     return-void

@@ -1,8 +1,15 @@
 package com.zpj.hotfix.patch.dex;
 
+import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.Log;
 
+import com.zpj.hotfix.FixObjectManager;
+import com.zpj.hotfix.annotation.Fix;
+import com.zpj.hotfix.model.Result;
+import com.zpj.hotfix.patch.Installer;
+import com.zpj.hotfix.patch.PatchInstaller;
 import com.zpj.hotfix.utils.Reflect;
 
 import java.io.File;
@@ -12,11 +19,97 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.List;
 
-public class DexInstaller {
+import dalvik.system.DexFile;
+import me.weishu.epic.art.hook.HookManager;
+import me.weishu.epic.art.hook.XC_MethodHook;
+import me.weishu.epic.art.utils.Reflector;
+
+public class DexPatchInstaller extends PatchInstaller {
 
     private static final String TAG = "DexInstaller";
+
+    public DexPatchInstaller(Context context) {
+        super(context);
+    }
+
+
+
+    @Override
+    public Result install(File file) throws Throwable {
+
+        File optPath = mContext.getDir("dex", Context.MODE_PRIVATE);
+        final DexFile dexFile = DexFile.loadDex(file.getAbsolutePath(),
+                optPath.getAbsolutePath(), Context.MODE_PRIVATE);
+
+//        loadPatch(context, dexPath);
+        ClassLoader classLoader = mContext.getClassLoader();
+        install(classLoader, Collections.singletonList(file), optPath);
+
+        Enumeration<String> entrys = dexFile.entries();
+        Class<?> clazz = null;
+        while (entrys.hasMoreElements()) {
+            String entry = entrys.nextElement();
+            clazz = classLoader.loadClass(entry);
+            if (clazz != null) {
+                fixClass(clazz, classLoader);
+            }
+        }
+
+        return null;
+    }
+
+
+    private static void fixClass(Class<?> fixClazz, ClassLoader classLoader) throws ClassNotFoundException, NoSuchMethodException {
+        Method[] methods = fixClazz.getDeclaredMethods();
+        Fix fix;
+        String clz;
+        String meth;
+        for (Method method : methods) {
+            fix = method.getAnnotation(Fix.class);
+            if (fix == null) {
+                continue;
+            }
+            clz = fix.clazz();
+            meth = fix.method();
+            if (!TextUtils.isEmpty(clz) && !TextUtils.isEmpty(meth)) {
+                hookMethod(classLoader, clz, meth, fixClazz, method);
+            }
+        }
+    }
+
+    private static void hookMethod(ClassLoader classLoader, final String bugClazzName,
+                                      String bugMethod, Class<?> fixClazz, Method fixMethod) throws ClassNotFoundException, NoSuchMethodException {
+        Class<?> bugClazz = classLoader.loadClass(bugClazzName);
+        XC_MethodHook callback = new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                try {
+                    Object obj = null;
+                    if (param.thisObject != null) {
+                        obj = FixObjectManager.get(param.thisObject, fixClazz);
+                    }
+
+                    Method method = fixClazz.getDeclaredMethod(fixMethod.getName(), fixMethod.getParameterTypes());
+                    method.setAccessible(true);
+                    Log.d(TAG, "fix method=" + method);
+                    Object result = method.invoke(obj, param.args);
+                    param.setResult(result);
+
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Method m = Reflector.findMethod(bugClazz, fixMethod.getName(), fixMethod.getParameterTypes());
+
+        HookManager.hookMethod(m, callback);
+    }
+
+
 
     public static void install(ClassLoader cl, List<File> dexFiles, File optimizeDir) throws Throwable {
         if (Build.VERSION.SDK_INT >= 23) {

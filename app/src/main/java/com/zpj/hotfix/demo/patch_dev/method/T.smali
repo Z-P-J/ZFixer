@@ -3,30 +3,39 @@
 .source "T.java"
 
 
-# instance fields
-.field private mOrigin:Ljava/lang/Object;
-
-
 # direct methods
 .method public constructor <init>()V
-    .registers 2
+    .registers 1
 
     .prologue
     .line 5
     invoke-direct {p0}, Ljava/lang/Object;-><init>()V
 
-    .line 7
-    new-instance v0, Ljava/lang/Object;
-
-    invoke-direct {v0}, Ljava/lang/Object;-><init>()V
-
-    iput-object v0, p0, Lcom/zpj/hotfix/demo/patch_dev/method/T;->mOrigin:Ljava/lang/Object;
-
     return-void
 .end method
 
-.method private test(IJSZDFBLjava/lang/String;)V
+.method private static test(Lcom/zpj/hotfix/demo/patch_dev/method/T;)V
+    .registers 2
+    .param p0, "_this"    # Lcom/zpj/hotfix/demo/patch_dev/method/T;
+    .annotation system Ldalvik/annotation/Throws;
+        value = {
+            Ljava/lang/Exception;
+        }
+    .end annotation
+
+    .prologue
+    .line 8
+    const-string v0, "test"
+
+    invoke-static {p0, v0}, Lcom/zpj/hotfix/utils/Reflect;->invoke(Ljava/lang/Object;Ljava/lang/String;)Ljava/lang/Object;
+
+    .line 9
+    return-void
+.end method
+
+.method private static test(Lcom/zpj/hotfix/demo/patch_dev/method/T;IJSZDFBLjava/lang/String;)V
     .registers 15
+    .param p0, "_this"    # Lcom/zpj/hotfix/demo/patch_dev/method/T;
     .param p1, "i"    # I
     .param p2, "l"    # J
     .param p4, "s"    # S
@@ -42,7 +51,7 @@
     .end annotation
 
     .prologue
-    .line 11
+    .line 13
     const/4 v2, 0x7
 
     new-array v0, v2, [Ljava/lang/Class;
@@ -89,7 +98,7 @@
 
     aput-object v3, v0, v2
 
-    .line 12
+    .line 14
     .local v0, "arr1":[Ljava/lang/Class;, "[Ljava/lang/Class<*>;"
     const/16 v2, 0x8
 
@@ -155,15 +164,13 @@
 
     aput-object p10, v1, v2
 
-    .line 13
+    .line 15
     .local v1, "arr2":[Ljava/lang/Object;
-    iget-object v2, p0, Lcom/zpj/hotfix/demo/patch_dev/method/T;->mOrigin:Ljava/lang/Object;
+    const-string v2, "test"
 
-    const-string v3, "test"
+    invoke-static {p0, v2, v0, v1}, Lcom/zpj/hotfix/utils/Reflect;->invoke(Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;
 
-    invoke-static {v2, v3, v0, v1}, Lcom/zpj/hotfix/utils/Reflect;->invoke(Ljava/lang/Object;Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;
-
-    .line 14
+    .line 16
     return-void
 .end method
 
@@ -184,7 +191,7 @@
     .end annotation
 
     .prologue
-    .line 18
+    .line 20
     const/4 v2, 0x7
 
     new-array v0, v2, [Ljava/lang/Class;
@@ -231,7 +238,7 @@
 
     aput-object v3, v0, v2
 
-    .line 19
+    .line 21
     .local v0, "arr1":[Ljava/lang/Class;, "[Ljava/lang/Class<*>;"
     const/16 v2, 0x8
 
@@ -297,7 +304,7 @@
 
     aput-object p9, v1, v2
 
-    .line 20
+    .line 22
     .local v1, "arr2":[Ljava/lang/Object;
     const-class v2, Lcom/zpj/hotfix/demo/patch_dev/method/T;
 
@@ -305,6 +312,6 @@
 
     invoke-static {v2, v3, v0, v1}, Lcom/zpj/hotfix/utils/Reflect;->invokeStatic(Ljava/lang/Class;Ljava/lang/String;[Ljava/lang/Class;[Ljava/lang/Object;)Ljava/lang/Object;
 
-    .line 21
+    .line 23
     return-void
 .end method

@@ -139,6 +139,22 @@ public final class EpicNative {
 
     public static native void invokeSuperVoid(Object object, String name, String sig, Object...args);
 
+    public static native int invokeSuperInt(Object object, String name, String sig, Object...args);
+
+    public static native long invokeSuperLong(Object object, String name, String sig, Object...args);
+
+    public static native double invokeSuperDouble(Object object, String name, String sig, Object...args);
+
+    public static native float invokeSuperFloat(Object object, String name, String sig, Object...args);
+
+    public static native boolean invokeSuperBoolean(Object object, String name, String sig, Object...args);
+
+    public static native char invokeSuperChar(Object object, String name, String sig, Object...args);
+
+    public static native byte invokeSuperByte(Object object, String name, String sig, Object...args);
+
+    public static native short invokeSuperShort(Object object, String name, String sig, Object...args);
+
 
     private EpicNative() {
     }

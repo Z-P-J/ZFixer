@@ -98,7 +98,11 @@ static jmethodID method_id_char;
 static jmethodID method_id_byte;
 static jmethodID method_id_short;
 
+static jclass class_exception;
+
 void init_entries(JNIEnv *env) {
+
+    class_exception = env->FindClass("java/lang/Exception");
 
     jclass clazz = env->FindClass("java/lang/Integer");
     method_id_int = env->GetMethodID(clazz, "intValue", "()I");
@@ -425,7 +429,103 @@ epic_activate(JNIEnv *env, jclass jclazz, jlong jumpToAddress, jlong pc, jlong s
     return result;
 }
 
-jobject invokeSuperMethod(JNIEnv *env, jobject obj, jstring name, jstring sig,
+/**
+ * 将参数中的包装类对象进行拆箱操作
+ * @param env JNI环境
+ * @param desc 方法签名描述
+ * @param args 原有参数数据
+ * @param parameters jvalue参数数组
+ */
+char
+parseArgs(JNIEnv *env, const char *desc, jobjectArray args, jvalue *parameters) {
+
+    int index = 0;
+
+    // 0:normal, 1:object, 2:array
+    int type = 0;
+
+    int start = 0;
+    for (int i = 0; i < strlen(desc); i++) {
+        char c = desc[i];
+
+
+        if (c == '(') {
+            continue;
+        }
+        if (c == ')') {
+            return desc[i + 1];
+        }
+
+        if (type == 1) {
+            if (c == ';') {
+                type = 0;
+                parameters[index].l = env->GetObjectArrayElement(args, index);
+                index++;
+            }
+            continue;
+        } else if (type == 2) {
+            if (c == '[') {
+                start = i;
+            } else if (i - start == 1 && (c == 'I' || c == 'J' || c == 'D' || c == 'F'
+                                          || c == 'Z' || c == 'C' || c == 'B' || c == 'S')) {
+                type = 0;
+                parameters[index].l = env->GetObjectArrayElement(args, index);
+                index++;
+            } else if (c == ';') {
+                type = 0;
+                parameters[index].l = env->GetObjectArrayElement(args, index);
+                index++;
+            }
+
+            continue;
+        }
+
+
+        if (c == 'L') {
+            type = 1;
+            continue;
+        } else if (c == '[') {
+            type = 2;
+            start = i;
+            continue;
+        }
+
+
+        jobject obj = env->GetObjectArrayElement(args, index);
+        switch (c) {
+            case 'I':
+                parameters[index].i = env->CallIntMethod(obj, method_id_int);
+                break;
+            case 'J':
+                parameters[index].j = env->CallLongMethod(obj, method_id_long);
+                break;
+            case 'D':
+                parameters[index].d = env->CallDoubleMethod(obj, method_id_double);
+                break;
+            case 'F':
+                parameters[index].f = env->CallFloatMethod(obj, method_id_float);
+                break;
+            case 'Z':
+                parameters[index].z = env->CallBooleanMethod(obj, method_id_boolean);
+                break;
+            case 'C':
+                parameters[index].c = env->CallCharMethod(obj, method_id_char);
+                break;
+            case 'B':
+                parameters[index].b = env->CallByteMethod(obj, method_id_byte);
+                break;
+            case 'S':
+                parameters[index].s = env->CallShortMethod(obj, method_id_short);
+                break;
+            default:
+                env->ThrowNew(class_exception, "signature error!");
+        }
+        index++;
+    }
+    return '\0';
+}
+
+jvalue *invokeSuperMethod(JNIEnv *env, jobject obj, jstring name, jstring sig,
                           jobjectArray args, bool isVoid) {
     jclass clazz = env->GetObjectClass(obj);
     jclass parentClass = env->GetSuperclass(clazz);
@@ -433,7 +533,7 @@ jobject invokeSuperMethod(JNIEnv *env, jobject obj, jstring name, jstring sig,
     jmethodID methodId = env->GetMethodID(parentClass,
                                           env->GetStringUTFChars(name, nullptr),
                                           desc);
-    jthrowable  th = env->ExceptionOccurred();
+    jthrowable th = env->ExceptionOccurred();
     if (th) {
         env->ExceptionClear();
         env->Throw(th);
@@ -441,16 +541,52 @@ jobject invokeSuperMethod(JNIEnv *env, jobject obj, jstring name, jstring sig,
 
     int len = env->GetArrayLength(args);
     jvalue parameters[len];
-    for (int i = 0; i < len; i++) {
-        parameters[i].l = env->GetObjectArrayElement(args, i);
+//    for (int i = 0; i < len; i++) {
+//        parameters[i].l = env->GetObjectArrayElement(args, i);
+//    }
+    char returnType = parseArgs(env, desc, args, parameters);
+
+
+    auto *result = new jvalue();
+    switch (returnType) {
+        case 'V':
+            env->CallNonvirtualVoidMethodA(obj, parentClass, methodId, parameters);
+            break;
+        case 'I':
+            result->i = env->CallNonvirtualIntMethodA(obj, parentClass, methodId, parameters);
+            break;
+        case 'J':
+            result->j = env->CallNonvirtualLongMethodA(obj, parentClass, methodId, parameters);
+            break;
+        case 'D':
+            result->d = env->CallNonvirtualDoubleMethodA(obj, parentClass, methodId, parameters);
+            break;
+        case 'F':
+            result->f = env->CallNonvirtualFloatMethodA(obj, parentClass, methodId, parameters);
+            break;
+        case 'Z':
+            result->z = env->CallNonvirtualBooleanMethodA(obj, parentClass, methodId, parameters);
+            break;
+        case 'C':
+            result->c = env->CallNonvirtualCharMethodA(obj, parentClass, methodId, parameters);
+            break;
+        case 'B':
+            result->b = env->CallNonvirtualByteMethodA(obj, parentClass, methodId, parameters);
+            break;
+        case 'S':
+            result->s = env->CallNonvirtualShortMethodA(obj, parentClass, methodId, parameters);
+            break;
+        default:
+            result->l = env->CallNonvirtualObjectMethodA(obj, parentClass, methodId, parameters);
+            break;
     }
 
-    jobject result = nullptr;
-    if (isVoid) {
-        env->CallNonvirtualVoidMethodA(obj, parentClass, methodId, parameters);
-    } else  {
-        result = env->CallNonvirtualObjectMethodA(obj, parentClass, methodId, parameters);
-    }
+//    jobject result = nullptr;
+//    if (isVoid) {
+//        env->CallNonvirtualVoidMethodA(obj, parentClass, methodId, parameters);
+//    } else  {
+//        result =
+//    }
     th = env->ExceptionOccurred();
     if (th) {
         env->ExceptionClear();
@@ -462,7 +598,7 @@ jobject invokeSuperMethod(JNIEnv *env, jobject obj, jstring name, jstring sig,
 jobject
 epic_invokeSuperObject(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
                        jobjectArray args) {
-    return invokeSuperMethod(env, obj, name, sig, args, false);
+    return invokeSuperMethod(env, obj, name, sig, args, false)->l;
 }
 
 void
@@ -471,29 +607,106 @@ epic_invokeSuperVoid(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstr
     invokeSuperMethod(env, obj, name, sig, args, true);
 }
 
+jint
+epic_invokeSuperInt(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                    jobjectArray args) {
+    return invokeSuperMethod(env, obj, name, sig, args, false)->i;
+}
+
+jlong
+epic_invokeSuperLong(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                     jobjectArray args) {
+    return invokeSuperMethod(env, obj, name, sig, args, false)->j;
+}
+
+jdouble
+epic_invokeSuperDouble(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                       jobjectArray args) {
+    return invokeSuperMethod(env, obj, name, sig, args, false)->d;
+}
+
+jfloat
+epic_invokeSuperFloat(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                      jobjectArray args) {
+    return invokeSuperMethod(env, obj, name, sig, args, false)->f;
+}
+
+jboolean
+epic_invokeSuperBoolean(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                        jobjectArray args) {
+    return invokeSuperMethod(env, obj, name, sig, args, false)->z;
+}
+
+jchar
+epic_invokeSuperChar(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                     jobjectArray args) {
+    return invokeSuperMethod(env, obj, name, sig, args, false)->c;
+}
+
+jbyte
+epic_invokeSuperByte(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                     jobjectArray args) {
+    return invokeSuperMethod(env, obj, name, sig, args, false)->b;
+}
+
+jshort
+epic_invokeSuperShort(JNIEnv *env, jclass jclazz, jobject obj, jstring name, jstring sig,
+                      jobjectArray args) {
+    return invokeSuperMethod(env, obj, name, sig, args, false)->s;
+}
+
 static JNINativeMethod dexposedMethods[] = {
 
-        {"mmap",                                    "(I)J",                                                                                          (void *) epic_mmap},
-        {"munmap",                                  "(JI)Z",                                                                                         (void *) epic_munmap},
-        {"memcpy",                                  "(JJI)V",                                                                                        (void *) epic_memcpy},
-        {"memput",                                  "([BJ)V",                                                                                        (void *) epic_memput},
-        {"memget",                                  "(JI)[B",                                                                                        (void *) epic_memget},
-        {"munprotect",                              "(JJ)Z",                                                                                         (void *) epic_munprotect},
-        {"getMethodAddress",                        "(Ljava/lang/reflect/Member;)J",                                                                 (void *) epic_getMethodAddress},
-        {"cacheflush",                              "(JJ)Z",                                                                                         (void *) epic_cacheflush},
-        {"MakeInitializedClassVisibilyInitialized", "(J)V",                                                                                          (void *) epic_MakeInitializedClassVisibilyInitialized},
-        {"malloc",                                  "(I)J",                                                                                          (void *) epic_malloc},
-        {"getObjectNative",                         "(JJ)Ljava/lang/Object;",                                                                        (void *) epic_getobject},
-        {"compileMethod",                           "(Ljava/lang/reflect/Member;J)Z",                                                                (void *) epic_compile},
-        {"suspendAll",                              "()J",                                                                                           (void *) epic_suspendAll},
-        {"resumeAll",                               "(J)V",                                                                                          (void *) epic_resumeAll},
-        {"stopJit",                                 "()J",                                                                                           (void *) epic_stopJit},
-        {"startJit",                                "(J)V",                                                                                          (void *) epic_startJit},
-        {"disableMovingGc",                         "(I)V",                                                                                          (void *) epic_disableMovingGc},
-        {"activateNative",                          "(JJJJ[B)Z",                                                                                     (void *) epic_activate},
-        {"isGetObjectAvailable",                    "()Z",                                                                                           (void *) epic_isGetObjectAvaliable},
-        {"invokeSuperObject",                       "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;", (void *) epic_invokeSuperObject},
-        {"invokeSuperVoid",                         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V",                  (void *) epic_invokeSuperVoid}
+        {"mmap", "(I)J", (void *) epic_mmap},
+        {"munmap", "(JI)Z", (void *) epic_munmap},
+        {"memcpy", "(JJI)V", (void *) epic_memcpy},
+        {"memput", "([BJ)V", (void *) epic_memput},
+        {"memget", "(JI)[B", (void *) epic_memget},
+        {"munprotect", "(JJ)Z", (void *) epic_munprotect},
+        {"getMethodAddress", "(Ljava/lang/reflect/Member;)J", (void *) epic_getMethodAddress},
+        {"cacheflush", "(JJ)Z", (void *) epic_cacheflush},
+        {"MakeInitializedClassVisibilyInitialized", "(J)V",
+         (void *) epic_MakeInitializedClassVisibilyInitialized},
+        {"malloc", "(I)J", (void *) epic_malloc},
+        {"getObjectNative", "(JJ)Ljava/lang/Object;", (void *) epic_getobject},
+        {"compileMethod", "(Ljava/lang/reflect/Member;J)Z", (void *) epic_compile},
+        {"suspendAll", "()J", (void *) epic_suspendAll},
+        {"resumeAll", "(J)V", (void *) epic_resumeAll},
+        {"stopJit", "()J", (void *) epic_stopJit},
+        {"startJit", "(J)V", (void *) epic_startJit},
+        {"disableMovingGc", "(I)V", (void *) epic_disableMovingGc},
+        {"activateNative", "(JJJJ[B)Z", (void *) epic_activate},
+        {"isGetObjectAvailable", "()Z", (void *) epic_isGetObjectAvaliable},
+        {"invokeSuperObject",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/Object;",
+         (void *) epic_invokeSuperObject},
+        {"invokeSuperVoid",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)V",
+         (void *) epic_invokeSuperVoid},
+        {"invokeSuperInt",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)I",
+         (void *) epic_invokeSuperInt},
+        {"invokeSuperLong",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)J",
+         (void *) epic_invokeSuperLong},
+        {"invokeSuperDouble",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)D",
+         (void *) epic_invokeSuperDouble},
+        {"invokeSuperFloat",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)F",
+         (void *) epic_invokeSuperFloat},
+        {"invokeSuperBoolean",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)Z",
+         (void *) epic_invokeSuperBoolean},
+        {"invokeSuperChar",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)C",
+         (void *) epic_invokeSuperChar},
+        {"invokeSuperByte",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)B",
+         (void *) epic_invokeSuperByte},
+        {"invokeSuperShort",
+         "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/Object;)S",
+         (void *) epic_invokeSuperShort},
 };
 
 static int registerNativeMethods(JNIEnv *env, const char *className,

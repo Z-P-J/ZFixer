@@ -161,7 +161,6 @@ public class Entry64 {
         byte[] value = new byte[8];
         if (isStatic) {
             receiver = null;
-
             long address = sp + 8;
             for (int i = 0; i < numberOfArgs; i++) {
                 Class<?> type = typeOfArgs[i];
@@ -182,9 +181,9 @@ public class Entry64 {
                 } else {
                     Arrays.fill(value, (byte) 0);
                     System.arraycopy(EpicNative.get(address, len), 0, value, 0, len);
-
                     arguments[i] = wrapArgument(type, self, value);
                 }
+                Logger.d(TAG, "arguments" + i + " = " + arguments[i]);
                 address += len;
             }
         } else {
@@ -258,7 +257,7 @@ public class Entry64 {
     }
 
     private static Object wrapArgument(Class<?> type, long self, byte[] value) {
-        Log.w(TAG, "wrapArgument type=" + type + " self=" + self);
+        Log.w(TAG, "wrapArgument type=" + type + " self=" + self + " value=" + Arrays.toString(value));
         final ByteBuffer byteBuffer = ByteBuffer.wrap(value).order(ByteOrder.LITTLE_ENDIAN);
         if (type.isPrimitive()) {
             if (type == int.class) {

@@ -2,11 +2,11 @@ package com.zpj.hotfix.utils;
 
 import android.util.Log;
 
-import me.weishu.epic.art.utils.Debug;
+import me.weishu.epic.BuildConfig;
 
 public class Logger {
 
-    private static final boolean DEBUG = Debug.DEBUG;
+    private static final boolean DEBUG = BuildConfig.DEBUG;
 
     public static final String preFix = "ZFixer.";
 

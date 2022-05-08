@@ -47,17 +47,40 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(TAG, "beforeHookedMethod-------params=" + Arrays.toString(param.args));
                 }
             });
+
+
+
+            method = getClass().getDeclaredMethod("test", int.class, int.class);
+            HookManager.hookMethod(method, new XC_MethodHook() {
+                @Override
+                protected void beforeHookedMethod(MethodHookParam param) throws Throwable {
+                    super.beforeHookedMethod(param);
+                    Log.d(TAG, "beforeHookedMethod-------params=" + Arrays.toString(param.args));
+                }
+            });
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
 
     }
 
-    public static void test(int a, Integer b, int c, double d, int e, Object f, int g, int h, int i, int j, long k, int l, long m, Long n) {
-        Log.d(TAG, "a=" + a + " f=" + f + " n=" + n);
+    public int test(int a, int b) {
+        int total = a + b;
+        Log.d(TAG, "total=" + total);
+        return total;
     }
 
-    public static void test(long a, Integer b, int c, double d, int e, Object f, int g, int h, int i, int j, long k, int l, long m, Long n) {
+//    public static void test(int a, Integer b, int c, double d, int e, Object f, int g, int h, int i, int j, long k, int l, long m, Long n) {
+//        Log.d(TAG, "a=" + a + " f=" + f + " n=" + n);
+//    }
+
+    public void test(long a, Integer b, int c, double d, int e, Object f, int g, int h, int i, int j, long k, int l, long m, Long n) {
+        long aa = a;
+        Log.d(TAG, "a=" + a + " f=" + f + " n=" + n + " b=" + b + " d=" + d + " f=" + f);
+        Log.d(TAG, "aa=" + aa);
+    }
+
+    public static void testStatic(long a, Integer b, int c, double d, int e, Object f, int g, int h, int i, int j, long k, int l, long m, Long n) {
         Log.d(TAG, "a=" + a + " f=" + f + " n=" + n);
     }
 
@@ -100,19 +123,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void test1(View view) {
-        mSdk.test1();
-
-        new Base().test();
-        new Test().test1();
+//        mSdk.test1();
 //
-        new com.zpj.hotfix.demo.patch_dev.inner.Test().test();
-
-        com.zpj.hotfix.demo.patch_dev.super_method.Test superTest = new com.zpj.hotfix.demo.patch_dev.super_method.Test();
-        superTest.test();
-        superTest.test(100, 0, 0, 0, 0, this, 0, 0, 0, 0, 0, 0, 0, 0L);
+//        new Base().test();
+//        new Test().test1();
+////
+//        new com.zpj.hotfix.demo.patch_dev.inner.Test().test();
+//
+//        com.zpj.hotfix.demo.patch_dev.super_method.Test superTest = new com.zpj.hotfix.demo.patch_dev.super_method.Test();
+//        superTest.test();
+//        superTest.test(100, 0, 0, 0, 0, this, 0, 0, 0, 0, 0, 0, 0, 0L);
 
         // 测试很多参数的方法hook
         test(100L, 100, 100, 100, 0, this, 0, 0, 0, 0, 0, 0, 0, 0L);
+
+        int num = test(3, 2);
     }
 
     public void test2(View view) {

@@ -39,7 +39,7 @@ public final class EpicNative {
         try {
             System.loadLibrary("epic");
             // TODO 在application中初始化时调用
-            Reflection.unseal(getApplication());
+//            Reflection.unseal(getApplication());
             useUnsafe = !isGetObjectAvailable();
             Log.i(TAG, "use unsafe ? " + useUnsafe);
         } catch (Throwable e) {

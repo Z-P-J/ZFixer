@@ -80,12 +80,6 @@ public final class Epic {
         return hookMethod(artOrigin);
     }
 
-    public static boolean hookMethod(Method origin, Method fixed) {
-        ArtMethod artOrigin = ArtMethod.of(origin);
-        fixed.setAccessible(true);
-        return hookMethod(artOrigin, ArtMethod.of(fixed));
-    }
-
     private static boolean hookMethod(ArtMethod artOrigin) {
 
         MethodInfo methodInfo = new MethodInfo();
@@ -141,66 +135,6 @@ public final class Epic {
             }
             Trampoline trampoline = scripts.get(key);
             boolean ret = trampoline.install(artOrigin);
-            // Logger.d(TAG, "hook Method result:" + ret);
-            return ret;
-        }
-    }
-
-    private static boolean hookMethod(ArtMethod artOrigin, ArtMethod fixedMethod) {
-
-        MethodInfo methodInfo = new MethodInfo();
-        methodInfo.isStatic = Modifier.isStatic(artOrigin.getModifiers());
-        final Class<?>[] parameterTypes = artOrigin.getParameterTypes();
-        if (parameterTypes != null) {
-            methodInfo.paramNumber = parameterTypes.length;
-            methodInfo.paramTypes = parameterTypes;
-        } else {
-            methodInfo.paramNumber = 0;
-            methodInfo.paramTypes = new Class<?>[0];
-        }
-        methodInfo.returnType = artOrigin.getReturnType();
-        methodInfo.method = artOrigin;
-        originSigs.put(artOrigin.getAddress(), methodInfo);
-
-        if (!artOrigin.isAccessible()) {
-            artOrigin.setAccessible(true);
-        }
-
-        artOrigin.ensureResolved();
-
-        long originEntry = artOrigin.getEntryPointFromQuickCompiledCode();
-        if (originEntry == ArtMethod.getQuickToInterpreterBridge()) {
-            Logger.i(TAG, "this method is not compiled, compile it now. current entry: 0x" + Long.toHexString(originEntry));
-            boolean ret = artOrigin.compile();
-            if (ret) {
-                originEntry = artOrigin.getEntryPointFromQuickCompiledCode();
-                Logger.i(TAG, "compile method success, new entry: 0x" + Long.toHexString(originEntry));
-            } else {
-                Logger.e(TAG, "compile method failed...");
-                return false;
-                // return hookInterpreterBridge(artOrigin);
-            }
-        }
-
-        ArtMethod backupMethod = artOrigin.backup();
-
-        Logger.i(TAG, "backup method address:" + Debug.addrHex(backupMethod.getAddress()));
-        Logger.i(TAG, "backup method entry :" + Debug.addrHex(backupMethod.getEntryPointFromQuickCompiledCode()));
-
-        ArtMethod backupList = getBackMethod(artOrigin);
-        if (backupList == null) {
-            setBackMethod(artOrigin, backupMethod);
-        }
-
-        final long key = originEntry;
-        final EntryLock lock = EntryLock.obtain(originEntry);
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
-        synchronized (lock) {
-            if (!scripts.containsKey(key)) {
-                scripts.put(key, new Trampoline(ShellCode, originEntry));
-            }
-            Trampoline trampoline = scripts.get(key);
-            boolean ret = trampoline.install(artOrigin, fixedMethod);
             // Logger.d(TAG, "hook Method result:" + ret);
             return ret;
         }

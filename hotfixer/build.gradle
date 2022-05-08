@@ -3,8 +3,7 @@ plugins {
 }
 
 android {
-    compileSdkVersion 30
-    buildToolsVersion "30.0.0"
+    compileSdkVersion 31
 
     defaultConfig {
         minSdkVersion 21
@@ -37,4 +36,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     implementation project(':epic')
+    implementation "com.github.tiann:FreeReflection:3.1.0"
 }

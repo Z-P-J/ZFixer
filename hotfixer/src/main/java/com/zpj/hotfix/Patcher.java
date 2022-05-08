@@ -1,5 +1,6 @@
 package com.zpj.hotfix;
 
+import android.app.Application;
 import android.content.Context;
 
 import com.zpj.hotfix.model.Result;
@@ -8,24 +9,24 @@ import java.io.File;
 
 public class Patcher {
 
-    private final Context context;
+    private final Application application;
     private final Callback callback;
     private final PatchFetcher fetcher;
     private final File patchDir;
 
     private Patcher(Builder builder) {
-        this.context = builder.context;
+        this.application = builder.application;
         this.callback = builder.callback;
         this.fetcher = builder.fetcher;
         if (builder.patchDir == null) {
-            this.patchDir = this.context.getDir("hotfix", Context.MODE_PRIVATE);
+            this.patchDir = this.application.getDir("hotfix", Context.MODE_PRIVATE);
         } else {
             this.patchDir = builder.patchDir;
         }
     }
 
-    public Context getContext() {
-        return context;
+    public Application getApplication() {
+        return application;
     }
 
     public Callback getCallback() {
@@ -38,13 +39,13 @@ public class Patcher {
 
     public static class Builder {
 
-        private final Context context;
+        private final Application application;
         private Callback callback;
         private PatchFetcher fetcher;
         private File patchDir;
 
-        public Builder(Context context) {
-            this.context = context;
+        public Builder(Application application) {
+            this.application = application;
         }
 
         public Builder setCallback(Callback callback) {

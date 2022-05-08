@@ -8,7 +8,6 @@ import android.util.Log;
 import com.zpj.hotfix.FixObjectManager;
 import com.zpj.hotfix.annotation.Fix;
 import com.zpj.hotfix.model.Result;
-import com.zpj.hotfix.patch.Installer;
 import com.zpj.hotfix.patch.PatchInstaller;
 import com.zpj.hotfix.utils.Reflect;
 
@@ -35,8 +34,6 @@ public class DexPatchInstaller extends PatchInstaller {
     public DexPatchInstaller(Context context) {
         super(context);
     }
-
-
 
     @Override
     public Result install(File file) throws Throwable {

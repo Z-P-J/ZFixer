@@ -71,29 +71,6 @@ class Trampoline {
         return activate();
     }
 
-    public boolean install(ArtMethod originMethod, ArtMethod fixedMethod) {
-        boolean modified = segments.add(originMethod);
-        if (!modified) {
-            // Already hooked, ignore
-            Logger.d(TAG, originMethod + " is already hooked, return.");
-            return true;
-        }
-
-        byte[] page = create(fixedMethod);
-        EpicNative.put(page, getTrampolineAddress());
-
-        int quickCompiledCodeSize = Epic.getQuickCompiledCodeSize(originMethod);
-        int sizeOfDirectJump = shellCode.sizeOfDirectJump();
-        if (quickCompiledCodeSize < sizeOfDirectJump) {
-            Logger.w(TAG, originMethod.toGenericString() + " quickCompiledCodeSize: " + quickCompiledCodeSize);
-            originMethod.setEntryPointFromQuickCompiledCode(getTrampolinePc());
-            return true;
-        }
-        // 这里是绝对不能改EntryPoint的，碰到GC就挂(GC暂停线程的时候，遍历所有线程堆栈，如果被hook的方法在堆栈上，那就GG)
-        // source.setEntryPointFromQuickCompiledCode(script.getTrampolinePc());
-        return activate();
-    }
-
     private long getTrampolineAddress() {
         if (getSize() != trampolineSize) {
             alloc();
@@ -151,24 +128,6 @@ class Trampoline {
         return mainPage;
     }
 
-    private byte[] create(ArtMethod fixedMethod) {
-        Logger.d(TAG, "create trampoline." + segments);
-        byte[] mainPage = new byte[getSize()];
-
-        int offset = 0;
-        for (ArtMethod method : segments) {
-            byte[] bridgeJump = createTrampoline(method, fixedMethod);
-            int length = bridgeJump.length;
-            System.arraycopy(bridgeJump, 0, mainPage, offset, length);
-            offset += length;
-        }
-
-        byte[] callOriginal = shellCode.createCallOrigin(jumpToAddress, originalCode);
-        System.arraycopy(callOriginal, 0, mainPage, offset, callOriginal.length);
-
-        return mainPage;
-    }
-
     private boolean activate() {
         long pc = getTrampolinePc();
         Logger.d(TAG, "Writing direct jump entry " + Debug.addrHex(pc) + " to origin entry: 0x" + Debug.addrHex(jumpToAddress));
@@ -196,20 +155,6 @@ class Trampoline {
         final ArtMethod target = ArtMethod.of(bridgeMethod);
         long targetAddress = target.getAddress();
         long targetEntry = target.getEntryPointFromQuickCompiledCode();
-        long sourceAddress = source.getAddress();
-        long structAddress = EpicNative.malloc(4);
-
-        Logger.d(TAG, "targetAddress:" + Debug.longHex(targetAddress));
-        Logger.d(TAG, "sourceAddress:" + Debug.longHex(sourceAddress));
-        Logger.d(TAG, "targetEntry:" + Debug.longHex(targetEntry));
-        Logger.d(TAG, "structAddress:" + Debug.longHex(structAddress));
-
-        return shellCode.createBridgeJump(targetAddress, targetEntry, sourceAddress, structAddress);
-    }
-
-    private byte[] createTrampoline(ArtMethod source, ArtMethod fixedMethod) {
-        long targetAddress = fixedMethod.getAddress();
-        long targetEntry = fixedMethod.getEntryPointFromQuickCompiledCode();
         long sourceAddress = source.getAddress();
         long structAddress = EpicNative.malloc(4);
 

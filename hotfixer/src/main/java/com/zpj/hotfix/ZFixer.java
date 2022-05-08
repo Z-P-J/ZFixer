@@ -8,6 +8,7 @@ import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import me.weishu.epic.art.hook.HookManager;
+import me.weishu.reflection.Reflection;
 
 public class ZFixer {
 
@@ -27,7 +28,7 @@ public class ZFixer {
 
     public void init(Patcher patcher) {
         if (mInit.compareAndSet(false, true)) {
-
+            Reflection.unseal(patcher.getApplication());
         }
     }
 
